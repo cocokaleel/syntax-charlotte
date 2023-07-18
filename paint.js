@@ -5,8 +5,8 @@ let mouse = {
 window.addEventListener('mouseup', function (e) {
     mouse.x = e.x;
     mouse.y = e.y;
-    console.log(mouse.x + ", " + mouse.y);
 });
+
 var paintCanvas = document.getElementById("paint_canvas");
 var paintContext = paintCanvas.getContext("2d");
 
@@ -41,19 +41,25 @@ function floodFill(x_coord,y_coord) {
         //locate the pixel in the Uint8ClampedArray of the data object
         const index = 4*(y*paintCanvas.width+x);
         
-        if (data[index+3]==0) {
+        if (data[index+3]==0&&data[index+3]!=250) {
             //pixel is empty so the up, down, left, and right should be added
 
             //change the pixel to be colored in
             data[index] = rColor[0];
             data[index+1] = rColor[1];
             data[index+2] = rColor[2];
-            data[index+3] = 255;
+            data[index+3] = 250;
 
             if (x-1>=0){queue.push([x-1,y]);}
             if (x+1<paintCanvas.width) {queue.push([x+1, y]);}
             if (y-1>=0) {queue.push([x, y-1]);} else {console.log("nopedy")}
             if (y+1<paintCanvas.height) {queue.push([x, y+1]);} else {console.log("nope")}
+        } 
+        else if (data[index+3]!=250) {
+            data[index] = 0;
+            data[index+1] = 0;
+            data[index+2] = 0;
+            data[index+3] = 255;
         }
     }
 
