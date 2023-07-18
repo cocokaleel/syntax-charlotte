@@ -56,9 +56,9 @@ function floodFill(x_coord,y_coord) {
             if (y+1<paintCanvas.height) {queue.push([x, y+1]);} else {console.log("nope")}
         } 
         else if (data[index+3]!=250) {
-            data[index] = 0;
-            data[index+1] = 0;
-            data[index+2] = 0;
+            data[index] = rColor[0];
+            data[index+1] = rColor[1];
+            data[index+2] = rColor[2];
             data[index+3] = 255;
         }
     }
