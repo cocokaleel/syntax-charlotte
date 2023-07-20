@@ -14,7 +14,6 @@ const paint_image = document.getElementById("paint_image");
 
 paintContext.clearRect(0, 0, window.innerWidth, window.innerHeight);
 
-paintContext.drawImage(paint_image, 0,0, 1000, 1000);
 
 //only pass in empty sections
 function floodFill(x_coord,y_coord) {
@@ -41,24 +40,27 @@ function floodFill(x_coord,y_coord) {
         //locate the pixel in the Uint8ClampedArray of the data object
         const index = 4*(y*paintCanvas.width+x);
         
-        if (data[index+3]==0&&data[index+3]!=250) {
+        if (data[index+3]==0&&data[index+3]!=125) {
             //pixel is empty so the up, down, left, and right should be added
 
             //change the pixel to be colored in
             data[index] = rColor[0];
             data[index+1] = rColor[1];
             data[index+2] = rColor[2];
-            data[index+3] = 250;
+            data[index+3] = 125;
 
             if (x-1>=0){queue.push([x-1,y]);}
             if (x+1<paintCanvas.width) {queue.push([x+1, y]);}
             if (y-1>=0) {queue.push([x, y-1]);} else {console.log("nopedy")}
             if (y+1<paintCanvas.height) {queue.push([x, y+1]);} else {console.log("nope")}
         } 
-        else if (data[index+3]!=250) {
-            data[index] = rColor[0];
-            data[index+1] = rColor[1];
-            data[index+2] = rColor[2];
+        else if (data[index+3]!=125) {
+            //create essentially a border pixel which will flip the one extraneous one. this looks 
+            //  better than setting the pixels to black (makes ink extra thick) or leaving i
+            //  unflipped, which looks discontinuous
+            data[index] = rColor[0]/2.0;
+            data[index+1] = rColor[1]/2.0;
+            data[index+2] = rColor[2]/2.0;
             data[index+3] = 255;
         }
     }
@@ -96,3 +98,5 @@ paintCanvas.addEventListener("click", (event) => pick(event)); //, selectedColor
     //         data[index+3] = 255;
     //     }
     // }
+
+paintContext.drawImage(paint_image, 0,0, 1000, 1000);

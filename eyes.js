@@ -62,10 +62,10 @@ class Eye {
 
 
 // context.drawImage(img, x, y, width, height);
-let eye1 = new Eye(imageX+372,imageY+345);
-let eye2 = new Eye(imageX+381,imageY+500);
-let eye3 = new Eye(imageX+607,imageY+515);
-let eye4 = new Eye(imageX+627,imageY+342);
+let eye1 = new Point(imageX+372,imageY+345);
+let eye2 = new Point(imageX+381,imageY+500);
+let eye3 = new Point(imageX+607,imageY+515);
+let eye4 = new Point(imageX+627,imageY+342);
 let eyes = [eye1, eye2, eye3, eye4];
 
 function animate() {
