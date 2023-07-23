@@ -67,14 +67,15 @@ class Point {
         this.initialPos = new Vector(x,y);
         this.pos = new Vector(x,y);
         this.v = new Vector(0,0);
-        this.mass = 5;
+        this.mass = 0.1;
+        this.friction = -0.001;
         this.gravity = new Vector(0,9.81);
         this.moveable = false;
-        this.radius = 10;
+        this.radius = 5;
         
     };
     collisionForce = () => {
-        //should return a list of collision forces
+        //should return a list of collisi´¯on forces
         //all collisions are assumed to have same friction coefficients
         /**
          * inspo for pixel access 
@@ -85,33 +86,53 @@ class Point {
         //collect nearby black pixels (if this doesn't work, check collisions with a different color and all other balls)
         var touching_pixels = [];
         var currPos = new Vector (Math.floor(this.pos.x), Math.floor(this.pos.y));
-        var radius = this.radius+1;
+        var radius = this.radius+2;
         var rSquared = radius*radius;
-        for (var i = -(this.radius+1); i <= this.radius+1; i++) {
-            var j = floor(Math.sqrt(rSquared-i*i)+0.5);
+        for (var i = -(radius); i <= radius; i++) {
+            var j = Math.floor(Math.sqrt(rSquared-i*i)+0.5);
 
             //check pixel values
             const pixel1 = ctx.getImageData(currPos.x + i, currPos.y+j, 1, 1);
             if (pixel1.data[0]==0&&pixel1.data[1]==0&&pixel1.data[2]==0) {
-                touching_pixels.push(Vector(currPos.x + i,currPos.y+j));
+                touching_pixels.push(new Vector(currPos.x + i,currPos.y+j));
             }
             const pixel2 = ctx.getImageData(currPos.x + i, currPos.y-j, 1, 1);
             if (pixel2.data[0]==0&&pixel2.data[1]==0&&pixel2.data[2]==0) {
-                touching_pixels.push(Vector(currPos.x + i,currPos.y-j));
+                touching_pixels.push(new Vector(currPos.x + i,currPos.y-j));
             }
         }
-        //TODO solve for weight force vector
+
+        //solve for weight force vector of this ball
+        var weight = this.gravity.multiply(this.mass)
+        var down = new Vector(0,1);
         
         var forceVectors = []; //theoretically this is only getting to length 1 or 2
-        touching_pixels.forEach(function(vec) {
-            //TODO find the direction of the normal force from the collision pixel
-            //TODO find the magnitude of the normal force vector from the gravity force
-            //TODO find the magnitude of the friction force from the normal force
-            
+        forceVectors.push(weight);
+
+        touching_pixels.forEach((position)=> {
+            //find the direction of the normal force from the collision pixel
+            var direction = this.pos.subtract(position);
+            var directionNormalized = direction.normalize();
+            //find the magnitude of the normal force vector from the gravity force
+            var angle = Math.acos(down.dotProduct(directionNormalized))
+            var scaledNormal = directionNormalized.multiply(-1*Math.cos(angle)*this.mass*this.gravity.y);
+            forceVectors.push(scaledNormal);
+            //find the magnitude of the friction force from the normal force (add friction coefficient)
+            var frictionDirection = new Vector(directionNormalized.y, -directionNormalized.x);
+            frictionDirection = frictionDirection.normalize();
+            if (frictionDirection.dotProduct(scaledNormal)>0) {
+                frictionDirection.multiplyBy(-1.0);
+            }
+            frictionDirection.multiplyBy(this.friction);
+            forceVectors.push(frictionDirection);
         });
 
-        //TODO add all normal and friction forces and weight force
+        //add all normal and friction forces and weight force
         var forceVector = new Vector (0,0);
+        forceVectors.forEach(function(force){
+            forceVector = forceVector.add(force);
+        });
+        console.log(forceVector);
         return forceVector;
     }
     draw = () => {
@@ -130,10 +151,9 @@ class Point {
             }
         } else {
             //collision check (pixels surrounding circle) --> forces
-            //TODO implement
-            
+            var force = this.collisionForce();
             //solves forces for acceleration
-            var acceleration = this.gravity;//TODO add collision forces
+            var acceleration = force.divide(this.mass);//add collision forces
             
             //add acceleration * time to velocity
             this.v = this.v.add(acceleration.multiply(0.16)); //TODO WHEN TIMER IS IMPLEMENTED SWAP OUT WITH THIS
@@ -141,8 +161,6 @@ class Point {
             //update position
             this.pos = this.pos.add(this.v.multiply(0.16)); //TODO when timer is implemented swap out with this
         }
-
-        this.draw();
     };
 };
 
@@ -154,7 +172,14 @@ let points = [point1, point2];
 function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.fillStyle = "white";
+    ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.fillStyle = "black";
+    ctx.fillRect(150, 350, 500, 10);
 
+    points.forEach(point => {
+        point.draw();
+    })
     points.forEach(point => {
         point.update();
     })
