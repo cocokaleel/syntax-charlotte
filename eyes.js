@@ -1,3 +1,7 @@
+import eyesData from './eyes.json' assert { type: 'json' };
+console.log(eyesData);
+
+
 let mouse = {
     x: undefined,
     y: undefined
@@ -5,7 +9,6 @@ let mouse = {
 window.addEventListener('mousemove', function (e) {
     mouse.x = e.x;
     mouse.y = e.y;
-    console.log(mouse.x + ", " + mouse.y);
 });
 var c = document.getElementById("eyes_canvas");
 var ctx = c.getContext("2d");
@@ -34,12 +37,6 @@ class Eye {
         this.initialY = y;
     };
     draw = () => {
-        // this is where we control the shape's appearance
-        // ctx.beginPath();
-        // ctx.arc(this.x, this.y, 8, 0, 2 * Math.PI);
-        // ctx.fill();
-
-
         ctx.drawImage(eyeImage, this.x, this.y, 21, 23);
     };
     update = () => {
@@ -61,12 +58,12 @@ class Eye {
 
 
 
-// context.drawImage(img, x, y, width, height);
-let eye1 = new Point(imageX+372,imageY+345);
-let eye2 = new Point(imageX+381,imageY+500);
-let eye3 = new Point(imageX+607,imageY+515);
-let eye4 = new Point(imageX+627,imageY+342);
-let eyes = [eye1, eye2, eye3, eye4];
+// LOAD IN THE EYES DATA FROM EYES.JSON
+let eyes = [];
+eyesData['eye-coordinates'].forEach((eye)=>{
+    eyes.push(new Eye(imageX+eye[0], imageY+eye[1]))
+    console.log("Added eye")
+})
 
 function animate() {
     requestAnimationFrame(animate);
@@ -75,7 +72,7 @@ function animate() {
     eyes.forEach(eye => {
         eye.update();
     })
-    ctx.drawImage(image, imageX, imageY, 1000, 1000);
+    ctx.drawImage(image, imageX, imageY, 1000, 0.9*window.innerHeight);
 };
 
 animate();

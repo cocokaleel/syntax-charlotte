@@ -1,0 +1,59 @@
+{
+    "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "attached", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti"],
+    "intro-text": {
+        "type": "text",
+        "contents": "Hello"
+    },
+    "intro-text-2": {
+        "type": "text",
+        "contents": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. :)"
+    },
+    "eyes-1": {
+        "image-name": "eyes-missing.png",
+        "type": "eyes",
+        "eye-image-name": "eye.png",
+        "eye-coordinates": [[372, 345],[381,500],[607,515],[627,342]]
+    },
+    "monkeys": {
+        "image-name": "monkeys.png",
+        "type": "eyes",
+        "eyes-image-name": "",
+        "eye-coordinates": []
+    },
+    "attached": {
+        "image-name": "attached.png",
+        "type": "dots"
+    },
+    "stained-glass": {
+        "image-name": "stained-glass-1000px.png",
+        "type": "stained-glass"
+    },
+    "ants": {
+        "image-name": "ants.png",
+        "type": "dots"
+    },
+    "car-1": {
+        "image-name": "car-1.png",
+        "type": "fingers"
+    },
+    "car-2": {
+        "image-name": "car-2.png",
+        "type": "stained-glass"
+    },
+    "toes": {
+        "image-name": "toes.png",
+        "type": "stained-glass"
+    },
+    "spaghetti": {
+        "image-name": "spaghetti.png",
+        "type": "eyes",
+        "eyes-image-name": "",
+        "eye-coordinates": []
+    },
+    "spaghetti-2": {
+        "image-name": "spaghetti-2.png",
+        "type": "eyes",
+        "eyes-image-name": "",
+        "eye-coordinates": []
+    }
+}

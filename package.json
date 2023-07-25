@@ -1,0 +1,20 @@
+{
+  "name": "charlotte-silverman",
+  "version": "1.0.0",
+  "description": "charlotte silverman's art made interactive for syntax magazine",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cocokaleel/syntax-charlotte.git"
+  },
+  "author": "Coco Kaleel",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/cocokaleel/syntax-charlotte/issues"
+  },
+  "homepage": "https://github.com/cocokaleel/syntax-charlotte#readme"
+}
