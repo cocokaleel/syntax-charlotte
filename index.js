@@ -13,6 +13,10 @@ window.addEventListener('mousemove', function (e) {
     mouse.x = e.x;
     mouse.y = e.y;
 });
+
+window.addEventListener('mousedown', () => {
+    console.log("x: "+mouse.x+" y: "+mouse.y)
+})
 var c = document.getElementById("main_canvas");
 var ctx = c.getContext("2d");
 
@@ -69,7 +73,7 @@ function incrementCount() {
 
 function runEyes(pieceName, image) {
 
-    let imageX = 200;
+    let imageX = 300;
     let imageY = 0;
 
     let eyes = [];
@@ -79,6 +83,7 @@ function runEyes(pieceName, image) {
         constructor(x, y) {
             this.eyeImage = new Image();
             this.eyeReady = false;
+            this.eyeWidth = data[pieceName]["eye-width"];
             this.eyeImage.src = "assets/images/"+data[pieceName]["eye-image-name"];
             this.x = x;
             this.y = y;
@@ -86,13 +91,13 @@ function runEyes(pieceName, image) {
             this.initialY = y;
 
             this.eyeImage.onload = () => {
-                ctx.drawImage(this.eyeImage, this.x, this.y, 21, 23);
+                ctx.drawImage(this.eyeImage, this.x, this.y, this.eyeWidth, this.eyeWidth);
                 this.eyeReady = true;
             }
         };
         draw = () => {
             if (this.eyeReady) {
-                ctx.drawImage(this.eyeImage, this.x, this.y*window.innerHeight/1000, 21, 23);
+                ctx.drawImage(this.eyeImage, this.x, this.y*window.innerHeight/1000, this.eyeWidth, this.eyeWidth);
             } else {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
@@ -103,13 +108,13 @@ function runEyes(pieceName, image) {
             // this is where we control movement and interactivity
             let distX = window.innerWidth - this.initialX;
             let curDistX = mouse.x - this.initialX;
-            let moveX = 10 * curDistX / distX;
+            let moveX = this.eyeWidth/3 * curDistX / distX;
             this.x = this.initialX + moveX;
 
 
             let distY = window.innerHeight - this.initialY;
             let curDistY = mouse.y - this.initialY;
-            let moveY = 10 * curDistY / distY;
+            let moveY = this.eyeWidth/3 * curDistY / distY;
             this.y = this.initialY + moveY;
             this.draw();
         };
