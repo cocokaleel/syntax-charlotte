@@ -74,38 +74,43 @@ function runEyes(pieceName, image) {
 
     let eyes = [];
 
-    const eyeImage = new Image(data[pieceName]["eyes-image-name"]);
+    // const eyeImage = new Image(data[pieceName]["eyes-image-name"]);
     class Eye {
         constructor(x, y) {
-            this.eyeImage = new Image(data[pieceName]["eyes-image-name"]);
+            this.eyeImage = new Image();
+            this.eyeReady = false;
+            this.eyeImage.src = "assets/images/"+data[pieceName]["eye-image-name"];
             this.x = x;
             this.y = y;
             this.initialX = x;
             this.initialY = y;
 
             this.eyeImage.onload = () => {
-                ctx.drawImage(eyeImage, this.x, this.y, 21, 23);
+                ctx.drawImage(this.eyeImage, this.x, this.y, 21, 23);
+                this.eyeReady = true;
             }
         };
         draw = () => {
-            // ctx.drawImage(this.eyeImage, this.x, this.y, 21, 23);
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
-            ctx.fill();
+            if (this.eyeReady) {
+                ctx.drawImage(this.eyeImage, this.x, this.y*window.innerHeight/1000, 21, 23);
+            } else {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
+                ctx.fill();
+            }
         };
         update = () => {
             // this is where we control movement and interactivity
-            let distX = 1000 - this.initialX;
+            let distX = window.innerWidth - this.initialX;
             let curDistX = mouse.x - this.initialX;
             let moveX = 10 * curDistX / distX;
             this.x = this.initialX + moveX;
 
 
-            let distY = 1000 - this.initialY;
+            let distY = window.innerHeight - this.initialY;
             let curDistY = mouse.y - this.initialY;
             let moveY = 10 * curDistY / distY;
             this.y = this.initialY + moveY;
-            console.log("x: "+this.x+" y: "+this.y);
             this.draw();
         };
     };
@@ -119,13 +124,10 @@ function runEyes(pieceName, image) {
     function animateEyes() {
         animation_request_id = window.requestAnimationFrame(animateEyes);
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        let index = 0;
-        ctx.drawImage(image, imageX, imageY, 1000, window.innerHeight);
         eyes.forEach(eye => {
-            console.log(index)
-            index++;
             eye.update();
         })
+        ctx.drawImage(image, imageX, imageY, 1000, window.innerHeight);
     }
     initEyes();
     animateEyes();

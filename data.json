@@ -17,7 +17,7 @@
     "monkeys": {
         "image-name": "monkeys.png",
         "type": "eyes",
-        "eyes-image-name": "",
+        "eye-image-name": "",
         "eye-coordinates": []
     },
     "attached": {
@@ -47,13 +47,13 @@
     "spaghetti": {
         "image-name": "spaghetti.png",
         "type": "eyes",
-        "eyes-image-name": "",
+        "eye-image-name": "",
         "eye-coordinates": []
     },
     "spaghetti-2": {
         "image-name": "spaghetti-2.png",
         "type": "eyes",
-        "eyes-image-name": "",
+        "eye-image-name": "",
         "eye-coordinates": []
     }
 }
