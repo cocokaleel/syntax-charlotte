@@ -82,7 +82,7 @@ function pick(event) {
     }
 }
   
-paintCanvas.addEventListener("click", (event) => pick(event)); //, selectedColor
+paintCanvas.addEventListener("click", (event) => pick(event));
 
 
 //ZONE OF LEARNING

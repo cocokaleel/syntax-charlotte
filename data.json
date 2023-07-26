@@ -1,5 +1,5 @@
 {
-    "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "attached", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti"],
+    "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "attached", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti", "spaghetti-2"],
     "intro-text": {
         "type": "text",
         "contents": "Hello"
@@ -50,13 +50,12 @@
     "spaghetti": {
         "image-name": "spaghetti.png",
         "type": "eyes",
-        "eye-image-name": "",
-        "eye-coordinates": []
+        "eye-width": 24,
+        "eye-image-name": "spaghetti-eye.png",
+        "eye-coordinates": [[348, 412],[585,417]]
     },
     "spaghetti-2": {
         "image-name": "spaghetti-2.png",
-        "type": "eyes",
-        "eye-image-name": "",
-        "eye-coordinates": []
+        "type": "stained-glass"
     }
 }
