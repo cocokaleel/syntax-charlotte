@@ -9,6 +9,7 @@ let mouse = {
 window.addEventListener('mousemove', function (e) {
     mouse.x = e.x;
     mouse.y = e.y;
+    // console.log("mousex " + mouse.x + " mousey " + mouse.y)
 });
 window.addEventListener('mousedown', () => {
     mouse.down = true;
@@ -23,23 +24,25 @@ class Joint {
         this.selected = false;
     }
     draw = () => {
-        if (this.selected) {
-            // this is where we control the shape's appearance
-            ctx.fillStyle = "red"
-            ctx.beginPath();
-            ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
-            ctx.fill();
-        }
+        // console.log("handle x: " + this.x + " handle y: " + this.y)
+        // if (this.selected) {
+        // this is where we control the shape's appearance
+        ctx.fillStyle = "red"
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
+        ctx.fill();
+
     };
     update = () => {
         //when the mouse gets picked up, deselect this joint
         if (this.selected && !mouse.down) {
             this.selected = false;
         }
-        if (Math.sqrt(Math.pow(this.x - mouse.x + 5, 2) + Math.sqrt(Math.pow(this.y - mouse.y-5, 2)))<10) {
-            this.selected = true;
+        if (Math.sqrt(Math.pow(this.x - mouse.x + 5, 2) + Math.sqrt(Math.pow(this.y - mouse.y - 5, 2))) < 10) {
+            if (mouse.down) {this.selected = true;}
+            this.draw();
         }
-        this.draw();
+
     };
     moveTo = (x, y) => {
         this.x = x;
@@ -51,7 +54,6 @@ class Segment {
     constructor(handle_location, angle, url, imgWidth, imgHeight, child) {
         this.handle_location = handle_location;
         this.currentAngle = 0
-        console.log("currentAngle: " + this.currentAngle)
         this.child = child;
         this.imgWidth = imgWidth;
         this.imgHeight = imgHeight;
@@ -70,9 +72,9 @@ class Segment {
     }
     draw = () => {
         if (this.ready) {
-            ctx.drawImage(this.image, this.dxUL,this.dyUL)
+            ctx.drawImage(this.image, this.dxUL, this.dyUL)
             ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
-            
+
             ctx.translate(this.dxHandle, this.dyHandle)
 
         } else {
@@ -85,9 +87,28 @@ class Segment {
     update = () => {
         this.handle.update();
         //check for rotation asks
-        // if (this.handle.selected) {
+        if (this.child && this.child.handle.selected) {
+            console.log("WOOO")
+            var directionHandleToMouse = [mouse.x - this.handle.x, mouse.y - this.handle.y]
+            console.log(directionHandleToMouse)
+            var magHtoM = Math.sqrt(Math.pow(directionHandleToMouse[0], 2) + Math.pow(directionHandleToMouse[1], 2)) //magnitude of handle to mouse
+            console.log(magHtoM)
+            var directionHandleToNextHandle = [this.child.handle.x - this.handle.x, this.child.handle.y - this.handle.y] //this should be the diagonal of the image in vector form
+            console.log(directionHandleToNextHandle)
+            var magHtoNH = Math.sqrt(Math.pow(directionHandleToNextHandle[0], 2) + Math.pow(directionHandleToNextHandle[1], 2))
+            console.log(magHtoNH)
 
-        // }
+            var nHtoM = [directionHandleToMouse[0] / magHtoM, directionHandleToMouse[1] / magHtoM] //normalized handle to mouse
+            console.log(nHtoM)
+            var nHtoNH = [directionHandleToNextHandle[0] / magHtoNH, directionHandleToNextHandle[1] / magHtoNH] //normalized handle to next handle
+            console.log(nHtoNH)
+            var newNextHandle = [this.handle.x + nHtoM[0] * magHtoNH, this.handle.y + nHtoM[1] * magHtoNH]
+            console.log(newNextHandle)
+
+            var angle = Math.asin((nHtoNH[0] * nHtoM[1] - nHtoM[0] * nHtoNH[1]))
+            this.child.handle.moveTo(newNextHandle[0], newNextHandle[1])
+            this.child.currentAngle += angle;
+        }
         //calculate how far mouse has moved and implied angle from there
     };
 }
@@ -121,8 +142,8 @@ class Line {
             var dxH = -currentSeg.imgWidth;
             var dyH = currentSeg.imgHeight;
 
-            runningHandleRealX+=dxH;
-            runningHandleRealY+=dyH;
+            runningHandleRealX += dxH;
+            runningHandleRealY += dyH;
 
 
             currentSeg.init(dxUL, dyUL, dxH, dyH, runningHandleRealX, runningHandleRealY)
@@ -152,7 +173,7 @@ class Line {
 }
 
 
-var lines = [new Line(300, 300, [['bottom-left', 0, 'leg1A.png', 93, 110], ['bottom-left', 0, 'leg1B.png', 71, 135]])]
+var lines = [new Line(300, 300, [['bottom-left', 0, 'leg1A.png', 68, 41],['bottom-left', 0, 'leg1B.png', 93, 110], ['bottom-left', 0, 'leg1C.png', 71, 135]])]
 
 function animate() {
     requestAnimationFrame(animate);
