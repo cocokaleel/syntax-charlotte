@@ -16,6 +16,7 @@ window.addEventListener('mousedown', () => {
 window.addEventListener('mouseup', () => { mouse.down = false; })
 
 class Joint {
+    //x,y are in relation to the original canvas origin
     constructor(x, y) {
         this.x = x;
         this.y = y;
@@ -49,6 +50,7 @@ class Segment {
     constructor(handle_location, angle, url, imgWidth, imgHeight, child) {
         this.handle_location = handle_location;
         this.currentAngle = angle
+        console.log("currentAngle: " + this.currentAngle)
         this.child = child;
         this.imgWidth = imgWidth;
         this.imgHeight = imgHeight;
@@ -57,22 +59,35 @@ class Segment {
         this.ready = false;
         this.image.onload = () => { this.ready = true; }
     }
-    init(xUL, yUL, joint) {
-        this.xUL = xUL;
-        this.yUL = yUL;
-        this.handle = joint;
+    init(xUL, yUL, xH, yH) {
+        //dxUL and dyUL are set with the parent's UL as origin
+        this.dxUL = xUL;
+        this.dyUL = yUL;
+        this.dxHandle = xH;
+        this.dyHandle = yH;
     }
     draw = () => {
         if (this.ready) {
-            ctx.drawImage(this.image, this.xUL, this.yUL)
+            ctx.drawImage(this.image, this.dxUL,this.dyUL)
+            ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
+            
+            ctx.translate(this.dxHandle, this.dyHandle)
+
         } else {
             console.log("not ready")
         }
-        this.handle.update();//todo move me
-        this.handle.draw()
+        // this.handle.draw()
     };
+    rotate = (originX, originY, angle) => {
+        //todo fill out with information about how to rotate about the specified origin
+    }
     update = () => {
+        // this.handle.update();
+        //check for rotation asks
+        // if (this.handle.selected) {
 
+        // }
+        //calculate how far mouse has moved and implied angle from there
     };
 }
 
@@ -94,68 +109,54 @@ class Line {
             seg = this.segmentRoot;
         }
         var currentSeg = this.segmentRoot;
-        var runningXUL = this.startX; //
-        var runningYUL = this.startY;
+        // var runningXULReal = this.startX; //
+        // var runningYULReal = this.startY;
+        var dxH = 0;
+        var dyH = 0;
         while (!(currentSeg === undefined)) {
-            console.log('do i happen')
-            var handleX = runningXUL;
-            var handleY = runningYUL;
-            //find the handle X and Y based on it's location on the image
-            if (currentSeg.handle_location == 'bottom-left') {
-                handleY += currentSeg.imgHeight;
-            } else if (currentSeg.handle_location == 'bottom-right') {
-                handleY += currentSeg.imgHeight;
-                handleX += currentSeg.imgWidth;
-            } else if (currentSeg.handle_location == 'top-right') {
-                handleX += currentSeg.imgWidth;
-            }
-            console.log('handleX' + handleX)
-            console.log('handle y ' + handleY)
-            currentSeg.init(runningXUL, runningYUL, new Joint(handleX, handleY))
-            //move the running X and Y based on where the handle location is
-            //find the handle X and Y based on it's location on the image
-            if (!(currentSeg.child === undefined)) {
-                if (currentSeg.handle_location == 'bottom-left') {
-                    runningYUL += currentSeg.imgHeight;
-                    runningXUL -= currentSeg.child.imgWidth;
-                } else if (currentSeg.handle_location == 'bottom-right') {
-                    runningXUL += currentSeg.imgWidth;
-                    runningYUL += currentSeg.imgHeight;
-                } else if (currentSeg.handle_location == 'top-right') {
-                    runningXUL += currentSeg.imgWidth;
-                    runningYUL -= currentSeg.imgHeight;
-                }
-            }
+            var dxUL = -currentSeg.imgWidth;
+            var dyUL = 0;
+            var dxH = -currentSeg.imgWidth;
+            var dyH = currentSeg.imgHeight;
+
+
+            currentSeg.init(dxUL, dyUL, dxH, dyH)
+
             currentSeg = currentSeg.child
         }
     }
     draw = () => {
         var currentSeg = this.segmentRoot;
         ctx.save();
+        ctx.translate(this.startX, this.startY)
         while (!(currentSeg === undefined)) {
-            ctx.rotate(currentSeg.angle);
+            // console.log(currentSeg.currentAngle);
+            ctx.rotate(currentSeg.currentAngle);
             currentSeg.draw();
             currentSeg = currentSeg.child;
         }
         ctx.restore();
     };
     update = () => {
-
+        var currentSeg = this.segmentRoot;
+        while (!(currentSeg === undefined)) {
+            currentSeg.update();
+            currentSeg = currentSeg.child;
+        }
     };
 }
 
 
-var lines = [new Line(100, 100, [['bottom-left', 0, 'leg1A.png', 93, 110], ['bottom-left', 0, 'leg1B.png', 71, 135]])]
+var lines = [new Line(300, 300, [['bottom-left', 8*Math.PI/4, 'leg1A.png', 93, 110], ['bottom-left', 8*Math.PI/4, 'leg1B.png', 71, 135]])]
 
 function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     lines.forEach((line) => {
-        line.draw();
-        // console.log('hi')
+        line.update();
     })
     lines.forEach((line) => {
-        line.update();
+        line.draw();
     })
 }
 
