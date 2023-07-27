@@ -2,11 +2,11 @@
     "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "attached", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti", "spaghetti-2"],
     "intro-text": {
         "type": "text",
-        "contents": "Hello"
+        "contents": "Hello [press spacebar to advance]"
     },
     "intro-text-2": {
         "type": "text",
-        "contents": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. :)"
+        "contents": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. :) [press spacebar to advance]"
     },
     "eyes-1": {
         "image-name": "eyes-missing.png",

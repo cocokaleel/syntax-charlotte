@@ -85,7 +85,15 @@ class Line {
             origin.y + (originalLength / distToMouse) * (mouse.y - origin.y)]
 
             var distToNewPosition = Math.sqrt(Math.pow(thisPoint.x - newPosition[0], 2) + Math.pow(thisPoint.y - newPosition[1], 2))
-            var angle = 2 * Math.asin((distToNewPosition / 2)/originalLength)
+            var originToOld = [thisPoint.x-origin.x, thisPoint.y-origin.y];
+            var originToNew = [newPosition[0]-origin.x, newPosition[1]-origin.y];
+            var magOld = Math.sqrt(Math.pow(originToOld[0],2)+Math.pow(originToOld[1],2))//magnitude of the originToOld vector
+            var magNew = Math.sqrt(Math.pow(originToNew[0], 2)+Math.pow(originToNew[1],2))//magitude of the originToNew vector
+            // console.log("internal: " + (originToOld[0]*originToNew[0]+originToOld[1]*originToNew[1])/(magOld*magNew))
+            var angle = Math.asin ((originToOld[0]*originToNew[1]-originToNew[0]*originToOld[1])/(magOld*magNew)) // do it this way to make it polar??
+            if (isNaN(angle)) {
+                angle = 0;
+            }
             // console.log(2 * Math.asin((distToNewPosition / 2)/originalLength))
             this.points[selectedIndex].moveTo(newPosition[0], newPosition[1])
             
@@ -93,13 +101,25 @@ class Line {
                 // x_rotated = ((x - dx) * cos(angle)) - ((dy - y) * sin(angle)) + dx
                 // y_rotated = dy - ((dy - y) * cos(angle)) + ((x - dx) * sin(angle))
                 var currentPoint = this.points[i];
-                originalLength = Math.sqrt(Math.pow(origin.x - currentPoint.x, 2) + Math.pow(origin.y - currentPoint.y, 2))
-                var dx = originalLength * Math.sin(angle);
-                var dy = originalLength - originalLength*Math.cos(angle);
-                var x_rotated = currentPoint.x+dx;
-                console.log((angle))
-                var y_rotated = currentPoint.y + dy;
-                console.log("x: "+x_rotated+" y: "+y_rotated)
+
+                // currentPoint.x -= origin.x;
+                // currentPoint.y -= origin.y;
+
+                
+                // originalLength = Math.sqrt(Math.pow(origin.x - currentPoint.x, 2) + Math.pow(origin.y - currentPoint.y, 2))
+                // var dx = originalLength * Math.sin(angle);
+                // var dy = originalLength - originalLength*Math.cos(angle);
+                var s = Math.sin(angle)
+                var c = Math.cos(angle);
+                var oX = currentPoint.x-origin.x;
+                var oY = currentPoint.y-origin.y
+                var x_rotated = oX * c - oY * s;
+                var y_rotated = oX * s + oY * c;
+                x_rotated += origin.x;
+                y_rotated += origin.y;
+                // console.log("angle "+angle)
+                // var y_rotated = currentPoint.y + dy;
+                // console.log("x: "+x_rotated+" y: "+y_rotated)
                 this.points[i].moveTo(x_rotated,y_rotated)
             }
         }
@@ -107,7 +127,7 @@ class Line {
 }
 
 
-var lines = [new Line([[0, 0], [300, 150], [200, 400]]), new Line([[500, 0], [500, 300]])]
+var lines = [new Line([[200, 200], [500, 350], [400, 600]])]
 
 function animate() {
     requestAnimationFrame(animate);
@@ -121,3 +141,13 @@ function animate() {
 }
 
 animate();
+
+var leg = new Image();
+leg.src = './assets/images/ants/leg1A.png'
+leg.onload = () => {
+    ctx.save()
+    ctx.translate(canvas.width/2, canvas.height/2);
+    ctx.rotate(-1 * Math.PI/2);
+    ctx.drawImage(leg, leg.width/2, leg.height/2)
+    ctx.restore()
+}

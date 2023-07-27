@@ -109,14 +109,14 @@ function runEyes(pieceName, image) {
         update = () => {
             // this is where we control movement and interactivity
             let distX = window.innerWidth - this.initialX;
-            let curDistX = mouse.x - this.initialX;
-            let moveX = this.eyeWidth/3 * curDistX / distX;
+            let curDistX = (mouse.x-window.innerWidth/2) - this.initialX;
+            let moveX = this.eyeWidth/2 * curDistX / distX;
             this.x = this.initialX + moveX;
 
 
             let distY = window.innerHeight - this.initialY;
             let curDistY = mouse.y - this.initialY;
-            let moveY = this.eyeWidth/3 * curDistY / distY;
+            let moveY = this.eyeWidth/2 * curDistY / distY;
             this.y = this.initialY + moveY;
             this.draw();
         };
@@ -164,6 +164,7 @@ function floodFill(x_coord,y_coord) {
     var rColor = [Math.random()*255, Math.random()*255, Math.random()*255];
 
     while (queue.length != 0) {
+        // console.log(queue.length)
         var n = queue.shift();
         var x = n[0];
         var y = n[1];
@@ -172,7 +173,7 @@ function floodFill(x_coord,y_coord) {
 
         //locate the pixel in the Uint8ClampedArray of the data object
         const index = 4*(y*c.width+x);
-        
+        // console.log("width: "+c.width)
         if (data[index+3]==0&&data[index+3]!=125) {
             //pixel is empty so the up, down, left, and right should be added
 
@@ -182,8 +183,8 @@ function floodFill(x_coord,y_coord) {
             data[index+2] = rColor[2];
             data[index+3] = 125;
 
-            if (x-1>=0){queue.push([x-1,y]);}
-            if (x+1<c.width) {queue.push([x+1, y]);}
+            if (x-1>=0){queue.push([x-1,y]);} else {console.log("what is the reason")}
+            if (x+1<c.width) {queue.push([x+1, y]);} else {console.log("seriously idk")}
             if (y-1>=0) {queue.push([x, y-1]);} else {console.log("Out of bounds on flood fill (something big going wrong)")}
             if (y+1<c.height) {queue.push([x, y+1]);} else {console.log("Out of bounds on flood fill (something big going wrong #23)")}
         } 
@@ -198,6 +199,7 @@ function floodFill(x_coord,y_coord) {
         }
     }
 
+    const bounding = c.getBoundingClientRect();
     ctx.putImageData(image_data, 0,0);
 }
 
@@ -206,13 +208,29 @@ function pick(event) {
     const bounding = c.getBoundingClientRect();
 
     //get the x and y locations relative to the upper lefthand location of the canvas (canvas internal 0,0)
-    const x_coord = event.clientX - bounding.left;
-    const y_coord = event.clientY - bounding.top;
+    const x_coord = Math.floor(event.clientX - bounding.left);
+    const y_coord = Math.floor(event.clientY - bounding.top);
+    console.log("X: "+event.clientX)
+    console.log("mouseX: " + mouse.x)
     const pixel = ctx.getImageData(x_coord, y_coord, 1, 1);
     const pixel_data = pixel.data;
+    console.log("bounding " + bounding.left)
+
+    //make everything gray for texting
+    // const image_data = ctx.getImageData(0,0,c.width,c.height);
+    // for(var i = 0; i<image_data.data.length; i++) {
+    //     image_data.data[i]=150;
+    // }
+    // ctx.putImageData(image_data, 0,0)
 
     if (pixel_data[3]==0) {
+        // pixel_data[0]=255;
+        // pixel_data[3]=255;
+        // ctx.putImageData(pixel, x_coord, y_coord)
+        // console.log("yep")
         floodFill(x_coord,y_coord);
+    } else {
+        console.log("nope")
     }
 }
 
