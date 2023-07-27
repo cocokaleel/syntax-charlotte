@@ -140,14 +140,23 @@ function animate() {
     })
 }
 
-animate();
+// animate();
+ctx.fillStyle = "black"
+ctx.fillRect(0,0, 500,500)
 
 var leg = new Image();
 leg.src = './assets/images/ants/leg1A.png'
 leg.onload = () => {
-    ctx.save()
-    ctx.translate(canvas.width/2, canvas.height/2);
-    ctx.rotate(-1 * Math.PI/2);
-    ctx.drawImage(leg, leg.width/2, leg.height/2)
-    ctx.restore()
+    // ctx.save()
+    // ctx.translate(canvas.width/2, canvas.height/2);
+    // ctx.rotate(-1 * Math.PI/2);
+    ctx.drawImage(leg, 171, 100, leg.width, leg.height)
+    // ctx.restore()
+}
+
+var leg2 = new Image();
+leg2.src = './assets/images/ants/leg1B.png'
+leg2.onload = () => {
+
+    ctx.drawImage(leg2, 100, 193, leg2.width, leg2.height); // x =(x of previous section) - this.width, y = y of previous section 
 }

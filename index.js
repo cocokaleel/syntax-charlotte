@@ -210,24 +210,10 @@ function pick(event) {
     //get the x and y locations relative to the upper lefthand location of the canvas (canvas internal 0,0)
     const x_coord = Math.floor(event.clientX - bounding.left);
     const y_coord = Math.floor(event.clientY - bounding.top);
-    console.log("X: "+event.clientX)
-    console.log("mouseX: " + mouse.x)
     const pixel = ctx.getImageData(x_coord, y_coord, 1, 1);
     const pixel_data = pixel.data;
-    console.log("bounding " + bounding.left)
-
-    //make everything gray for texting
-    // const image_data = ctx.getImageData(0,0,c.width,c.height);
-    // for(var i = 0; i<image_data.data.length; i++) {
-    //     image_data.data[i]=150;
-    // }
-    // ctx.putImageData(image_data, 0,0)
 
     if (pixel_data[3]==0) {
-        // pixel_data[0]=255;
-        // pixel_data[3]=255;
-        // ctx.putImageData(pixel, x_coord, y_coord)
-        // console.log("yep")
         floodFill(x_coord,y_coord);
     } else {
         console.log("nope")
