@@ -39,6 +39,7 @@ class Joint {
         if (Math.sqrt(Math.pow(this.x - mouse.x + 5, 2) + Math.sqrt(Math.pow(this.y - mouse.y-5, 2)))<10) {
             this.selected = true;
         }
+        this.draw();
     };
     moveTo = (x, y) => {
         this.x = x;
@@ -49,7 +50,7 @@ class Joint {
 class Segment {
     constructor(handle_location, angle, url, imgWidth, imgHeight, child) {
         this.handle_location = handle_location;
-        this.currentAngle = angle
+        this.currentAngle = 0
         console.log("currentAngle: " + this.currentAngle)
         this.child = child;
         this.imgWidth = imgWidth;
@@ -59,12 +60,13 @@ class Segment {
         this.ready = false;
         this.image.onload = () => { this.ready = true; }
     }
-    init(xUL, yUL, xH, yH) {
+    init(xUL, yUL, xH, yH, jointX, jointY) {
         //dxUL and dyUL are set with the parent's UL as origin
         this.dxUL = xUL;
         this.dyUL = yUL;
         this.dxHandle = xH;
         this.dyHandle = yH;
+        this.handle = new Joint(jointX, jointY)
     }
     draw = () => {
         if (this.ready) {
@@ -76,13 +78,12 @@ class Segment {
         } else {
             console.log("not ready")
         }
-        // this.handle.draw()
     };
     rotate = (originX, originY, angle) => {
         //todo fill out with information about how to rotate about the specified origin
     }
     update = () => {
-        // this.handle.update();
+        this.handle.update();
         //check for rotation asks
         // if (this.handle.selected) {
 
@@ -109,8 +110,9 @@ class Line {
             seg = this.segmentRoot;
         }
         var currentSeg = this.segmentRoot;
-        // var runningXULReal = this.startX; //
-        // var runningYULReal = this.startY;
+        var runningHandleRealX = this.startX;
+        var runningHandleRealY = this.startY;
+
         var dxH = 0;
         var dyH = 0;
         while (!(currentSeg === undefined)) {
@@ -119,8 +121,11 @@ class Line {
             var dxH = -currentSeg.imgWidth;
             var dyH = currentSeg.imgHeight;
 
+            runningHandleRealX+=dxH;
+            runningHandleRealY+=dyH;
 
-            currentSeg.init(dxUL, dyUL, dxH, dyH)
+
+            currentSeg.init(dxUL, dyUL, dxH, dyH, runningHandleRealX, runningHandleRealY)
 
             currentSeg = currentSeg.child
         }
@@ -147,7 +152,7 @@ class Line {
 }
 
 
-var lines = [new Line(300, 300, [['bottom-left', 8*Math.PI/4, 'leg1A.png', 93, 110], ['bottom-left', 8*Math.PI/4, 'leg1B.png', 71, 135]])]
+var lines = [new Line(300, 300, [['bottom-left', 0, 'leg1A.png', 93, 110], ['bottom-left', 0, 'leg1B.png', 71, 135]])]
 
 function animate() {
     requestAnimationFrame(animate);
