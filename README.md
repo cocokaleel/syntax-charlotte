@@ -1,3 +1,7 @@
 # Hello!
 
-This is the README for the code that will eventually appear on Syntax Mag's zine site. Right now, though, it's just a place for some fun possibilities.
+Seven interactive pieces (3 types: flood fill, trailing eyes, articulated) of Charlotte Silverman's work
+
+god i would have changed a lot of this but simply there is only so much time
+
+everything is in index.json, index.html, data.json, and the assets folder
