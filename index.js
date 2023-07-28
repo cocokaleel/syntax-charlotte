@@ -1,5 +1,4 @@
 import data from './data.json' assert { type: 'json' };
-console.log(data);
 
 var antImages = new Map(); //this is necessary for preloading
 function loadAntImages() {
@@ -23,14 +22,13 @@ let mouse = {
     down: false
 };
 
+//add global handlers
 window.addEventListener('mousemove', function (e) {
     mouse.x = e.x;
     mouse.y = e.y;
 });
-
 window.addEventListener('mousedown', () => {
     mouse.down = true;
-    console.log("x: " + mouse.x + " y: " + mouse.y)
 })
 window.addEventListener('mouseup', ()=> {
     mouse.down = false;
@@ -39,19 +37,19 @@ var c = document.getElementById("main_canvas");
 var ctx = c.getContext("2d");
 
 c.width = 1000;
-c.height = window.innerHeight;
+c.height = 1000;
 
-window.addEventListener('resize', function () {
-    c.width = window.innerWidth;
-    c.height = window.innerHeight;
-});
 // event = keyup or keydown
 document.body.onload = display()
 document.body.onkeydown = function (e) {
-    if (e.key == " " || e.code == "Space" || e.keyCode == 32
+    if (e.key == " " || e.code == "Space" || e.keyCode == 39
     ) {
         e.preventDefault(); //prevent autoscroll
         incrementCount()
+        display()
+    } else if (e.keyCode == 37) {
+        e.preventDefault(); //prevent autoscroll
+        decrementCount()
         display()
     }
 }
@@ -62,7 +60,6 @@ function display() {
     //get rid of everything that was there before
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     let piece_name = data.pieces[piece_index]
-    console.log("PIECE: " + piece_name)
 
     let piece_data = data[piece_name]
     if (piece_data.type == "text") {
@@ -85,13 +82,23 @@ function display() {
 
     }
 }
+//advance the slideshow
 function incrementCount() {
     stop()
     if (piece_index < data.pieces.length - 1) {
         piece_index++;
     }
 }
+//go back in the slideshow
+function decrementCount() {
 
+    stop()
+    if (piece_index > 0) {
+        piece_index--;
+    }
+}
+
+//run the eyes code!
 function runEyes(pieceName, image) {
 
     let imageX = 0;
@@ -144,7 +151,6 @@ function runEyes(pieceName, image) {
     function initEyes() {
         data[pieceName]['eye-coordinates'].forEach((eye) => {
             eyes.push(new Eye(imageX + eye[0], imageY + eye[1]))
-            console.log("Added eye")
         })
     }
     function animateEyes() {
@@ -159,9 +165,12 @@ function runEyes(pieceName, image) {
     animateEyes();
 }
 
-
+//run the articulated
+//EDITORS (and future me) BEWARE: I HAVE LIMITED THIS TO JUST THE ANTS BECAUSE THE PRE-LOADING FUNCTION IS PRIMITIVE AND
+//  I DIDN'T HAVE TIME TO MAKE IT MORE ABSTRACTED
 function runArticulated(pieceName, background_image) {
 
+    //the handles at the ends of each of the legs
     class Joint {
         //x,y are in relation to the original canvas origin
         constructor(x, y) {
@@ -176,7 +185,6 @@ function runArticulated(pieceName, background_image) {
             ctx.beginPath();
             ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
             ctx.fill();
-
         };
         update = () => {
             //when the mouse gets picked up, deselect this joint
@@ -190,10 +198,13 @@ function runArticulated(pieceName, background_image) {
             }
 
         };
+        //shift the x,y (with respect to upper left of canvas)
         moveTo = (x, y) => {
             this.x = x;
             this.y = y;
         }
+        //rotate x and y (with respect to upper left of canvas) about specified origin by angle amount
+        //NOTE: angle was necessary to negate and fiddly stuff to make it work with canvas coord system
         rotateAbout = (originX, originY, angle) => {
             //rotate about the specified origin
             var x = this.x;
@@ -209,17 +220,19 @@ function runArticulated(pieceName, background_image) {
         }
     }
 
+    //the image segments that end with handles
     class Segment {
         constructor(handle_location, angle, url, child) {
             this.handle_location = handle_location;
             this.currentAngle = 0
             this.initialAngle = angle
-            this.child = child;
-            // this.image = new Image();
+            this.child = child; //the next segment in the chain (yes this is a linked-list)
+            // this.image = new Image(); //this is commented out because I changed it to a pre-loaded system
             // this.image.src = "assets/images/ants/" + url;
-            this.image = antImages.get(url)
+            this.image = antImages.get(url) //TODO MAKE THIS ABSTRACT AND NOT SPECIFICALLY FOR ANT IMAGE
             this.ready = false;
         }
+        //after initial information is in, set up coordinate system relative to the parent of each segment
         init(xUL, yUL, xH, yH, jointX, jointY) {
             //dxUL and dyUL are set with the parent's UL as origin
             this.dxUL = xUL;
@@ -230,13 +243,14 @@ function runArticulated(pieceName, background_image) {
         }
         draw = () => {
                 ctx.drawImage(this.image, this.dxUL, this.dyUL)
-                // ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
+                // ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height); //todo comment in if you want to see the image bounds
 
+                //offset the canvas by the handle offset (to make rotations about the handle location)
                 ctx.translate(this.dxHandle, this.dyHandle)
         };
         update = () => {
             this.handle.update();
-            //check for rotation asks
+            //check for rotation requests
             if (this.child && this.child.handle.selected) {
                 //calculate how far mouse has moved and implied angle from there
                 const bounding = c.getBoundingClientRect();
@@ -272,7 +286,7 @@ function runArticulated(pieceName, background_image) {
         constructor(x, y, segments) {
             this.startX = x;
             this.startY = y;
-            this.segmentRoot = undefined;
+            this.segmentRoot = undefined; //the top of the leg chain
 
             var seg;
 
@@ -287,10 +301,11 @@ function runArticulated(pieceName, background_image) {
 
             var dxH = 0;
             var dyH = 0;
-            var last_handle_position = currentSeg.handle_location
+            var last_handle_position = currentSeg.handle_location //this is a little gross but necessary to start the chain off with a handle (I was lazy and coded around my recursion)
             var last_seg_width = 0;
             var last_seg_height = 0;
             while (!(currentSeg === undefined)) {
+                //change the offset initialization process based on where the handle will be attached on each segment
                 if (last_handle_position == "bottom-left") {
                     var dxUL = -currentSeg.image.width;
                     var dyUL = 0;
@@ -307,13 +322,14 @@ function runArticulated(pieceName, background_image) {
                     var dxH = currentSeg.image.width;
                     var dyH = -currentSeg.image.height;
                 }
-
+                //keep track of the actual position based on the offsets (for plugging into the handles which exist on the real coord system, not offsets)
                 runningHandleRealX += dxH;
                 runningHandleRealY += dyH;
 
 
                 currentSeg.init(dxUL, dyUL, dxH, dyH, runningHandleRealX, runningHandleRealY)
                 last_handle_position = currentSeg.handle_location
+                //keep track of these for the above recursion values
                 last_seg_width = currentSeg.image.width
                 last_seg_height = currentSeg.image.height
 
@@ -323,7 +339,7 @@ function runArticulated(pieceName, background_image) {
             //set up initial angles
             currentSeg = this.segmentRoot;
             while (!(currentSeg === undefined)) {
-                //rotate handles
+                //rotate handles by populating rotations all the way down
                 if (!(currentSeg.child === undefined)) {
                     var runner = currentSeg.child;
                     var angle_for_rest_of_leg = runner.initialAngle;
@@ -337,6 +353,7 @@ function runArticulated(pieceName, background_image) {
                 currentSeg = currentSeg.child;
             }
         }
+        //draw a line by translating the canvas around the starting handle point then recursing down the draw chain on the segments
         draw = () => {
             var currentSeg = this.segmentRoot;
             ctx.save();
@@ -402,7 +419,6 @@ function floodFill(x_coord, y_coord) {
     var rColor = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
 
     while (queue.length != 0) {
-        // console.log(queue.length)
         var n = queue.shift();
         var x = n[0];
         var y = n[1];
@@ -411,7 +427,6 @@ function floodFill(x_coord, y_coord) {
 
         //locate the pixel in the Uint8ClampedArray of the data object
         const index = 4 * (y * c.width + x);
-        // console.log("width: "+c.width)
         if (data[index + 3] == 0 && data[index + 3] != 125) {
             //pixel is empty so the up, down, left, and right should be added
 
