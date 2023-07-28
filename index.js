@@ -1,6 +1,18 @@
 import data from './data.json' assert { type: 'json' };
 console.log(data);
 
+var antImages = new Map(); //this is necessary for preloading
+function loadAntImages() {
+    data.ants.lines.forEach((line)=>{
+        line.data.forEach((segment) => {
+            var img = new Image();
+            img.src = "./assets/images/ants/"+segment[2];
+            antImages.set(segment[2], img)
+        })
+    })
+}
+loadAntImages();
+
 //define global variables
 let piece_index = 0;
 let paint_mode = false;
@@ -203,10 +215,10 @@ function runArticulated(pieceName, background_image) {
             this.currentAngle = 0
             this.initialAngle = angle
             this.child = child;
-            this.image = new Image();
-            this.image.src = "assets/images/ants/" + url;
+            // this.image = new Image();
+            // this.image.src = "assets/images/ants/" + url;
+            this.image = antImages.get(url)
             this.ready = false;
-            this.image.onload = () => { this.ready = true; }
         }
         init(xUL, yUL, xH, yH, jointX, jointY) {
             //dxUL and dyUL are set with the parent's UL as origin
@@ -217,13 +229,10 @@ function runArticulated(pieceName, background_image) {
             this.handle = new Joint(jointX, jointY)
         }
         draw = () => {
-            if (this.ready) {
                 ctx.drawImage(this.image, this.dxUL, this.dyUL)
                 // ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
 
                 ctx.translate(this.dxHandle, this.dyHandle)
-
-            }
         };
         update = () => {
             this.handle.update();
@@ -356,8 +365,7 @@ function runArticulated(pieceName, background_image) {
     function animate() {
         animation_request_id = window.requestAnimationFrame(animate);
         ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-        // ctx.fillStyle = "black"
-        // ctx.fillRect(0,0, window.innerWidth, window.innerHeight);
+        
         ctx.drawImage(background_image, 0, 0)
         lines.forEach((line) => {
             line.update();
