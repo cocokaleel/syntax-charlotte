@@ -2,7 +2,7 @@ import data from './data.json' assert { type: 'json' };
 console.log(data);
 
 //define global variables
-let piece_index = 5;
+let piece_index = 0;
 let paint_mode = false;
 let animation_request_id = undefined;
 let mouse = {
@@ -348,15 +348,6 @@ function runArticulated(pieceName, background_image) {
         };
     }
 
-
-    // var lines = [new Line(190, 475, [['bottom-left', 0, 'leg1A.png'], ['bottom-left', -Math.PI / 8, 'leg1B.png'], ['bottom-left', -Math.PI / 4, 'leg1C.png']]),
-    // new Line(200, 500, [['bottom-right', 0, 'leg2A.png'], ['bottom-left', 0, 'leg2B.png']]),
-    // new Line(400, 491, [['bottom-right', 0, 'leg3A.png'], ['bottom-right', 0, 'leg3B.png']]),
-    // new Line(540, 460, [['bottom-left', 0, 'leg4A.png'], ['bottom-left', 0.6, 'leg4B.png']]),
-    // new Line(650, 450, [['bottom-right', 0, 'leg5A.png'], ['bottom-left', 0, 'leg5B.png'], ['bottom-left', 0, 'leg5C.png'], ['bottom-left', 0, 'leg5D.png'], ['bottom-left', 0, 'leg5E.png']]),
-    // new Line(700, 500, [['bottom-left', 0, 'leg6A.png'], ['bottom-left', 0, 'leg6B.png'], ['bottom-left', 0, 'leg6C.png']]),
-    // new Line(400, 380, [['top-right', 0, 'leg7A.png'], ['top-right', 0, 'leg7B.png']])
-    // ]
     var lines = [];
     data[pieceName].lines.forEach((line) => {
         lines.push(new Line(line.x, line.y, line.data))
