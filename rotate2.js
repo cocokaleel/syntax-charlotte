@@ -40,13 +40,33 @@ class Joint {
         }
         if (Math.sqrt(Math.pow(this.x - mouse.x + 5, 2) + Math.sqrt(Math.pow(this.y - mouse.y - 5, 2))) < 10) {
             if (mouse.down) {this.selected = true;}
-            this.draw();
-        }
+           
+        } this.draw();
 
     };
     moveTo = (x, y) => {
         this.x = x;
         this.y = y;
+    }
+    rotateAbout = (originX, originY, angle) => {
+        //rotate about the specified origin
+        var x = this.x;
+        var y = this.y;
+        console.log("originX " + originX + " originY " + originY)
+
+        console.log("this.x + " + this.x)
+        x -= originX
+        y -= originY
+        var cos = Math.cos(-angle % (2*Math.PI))
+        var sin = Math.sin(-angle % (2*Math.PI))
+        console.log("x: " + x)
+        console.log("y: " + y)
+        var newX = (x*cos + y*sin) + originX;
+        var newY = (y*cos + -x*sin) + originY;
+        console.log("newX " + newX)
+        console.log("newY " + newY)
+        this.x = newX;
+        this.y = newY;
     }
 }
 
@@ -81,35 +101,35 @@ class Segment {
             console.log("not ready")
         }
     };
-    rotate = (originX, originY, angle) => {
-        //todo fill out with information about how to rotate about the specified origin
-    }
     update = () => {
         this.handle.update();
         //check for rotation asks
         if (this.child && this.child.handle.selected) {
-            console.log("WOOO")
+            //calculate how far mouse has moved and implied angle from there
             var directionHandleToMouse = [mouse.x - this.handle.x, mouse.y - this.handle.y]
-            console.log(directionHandleToMouse)
             var magHtoM = Math.sqrt(Math.pow(directionHandleToMouse[0], 2) + Math.pow(directionHandleToMouse[1], 2)) //magnitude of handle to mouse
-            console.log(magHtoM)
             var directionHandleToNextHandle = [this.child.handle.x - this.handle.x, this.child.handle.y - this.handle.y] //this should be the diagonal of the image in vector form
-            console.log(directionHandleToNextHandle)
             var magHtoNH = Math.sqrt(Math.pow(directionHandleToNextHandle[0], 2) + Math.pow(directionHandleToNextHandle[1], 2))
-            console.log(magHtoNH)
 
+            //normalize both vectors using magnitude
             var nHtoM = [directionHandleToMouse[0] / magHtoM, directionHandleToMouse[1] / magHtoM] //normalized handle to mouse
-            console.log(nHtoM)
             var nHtoNH = [directionHandleToNextHandle[0] / magHtoNH, directionHandleToNextHandle[1] / magHtoNH] //normalized handle to next handle
-            console.log(nHtoNH)
+            
             var newNextHandle = [this.handle.x + nHtoM[0] * magHtoNH, this.handle.y + nHtoM[1] * magHtoNH]
-            console.log(newNextHandle)
 
+            //using cross product, find the angle between the two vectors
             var angle = Math.asin((nHtoNH[0] * nHtoM[1] - nHtoM[0] * nHtoNH[1]))
             this.child.handle.moveTo(newNextHandle[0], newNextHandle[1])
             this.child.currentAngle += angle;
+            
+            //populate change for the rest of the handles
+            var seg = this.child.child
+            while (seg) {
+                // console.log(seg.handle)
+                seg.handle.rotateAbout(this.handle.x, this.handle.y, angle);
+                seg = seg.child;
+            }
         }
-        //calculate how far mouse has moved and implied angle from there
     };
 }
 
