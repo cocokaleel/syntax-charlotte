@@ -1,5 +1,17 @@
 {
-    "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti", "spaghetti-2"],
+    "pieces": [
+        "intro-text",
+        "intro-text-2",
+        "eyes-1",
+        "monkeys",
+        "stained-glass",
+        "ants",
+        "car-1",
+        "car-2",
+        "toes",
+        "spaghetti",
+        "spaghetti-2"
+    ],
     "intro-text": {
         "type": "text",
         "contents": "Hello [press spacebar to advance]"
@@ -13,23 +25,151 @@
         "type": "eyes",
         "eye-image-name": "eye.png",
         "eye-width": 20,
-        "eye-coordinates": [[372, 345],[381,500],[607,515],[627,342]]
+        "eye-coordinates": [
+            [
+                372,
+                345
+            ],
+            [
+                381,
+                500
+            ],
+            [
+                607,
+                515
+            ],
+            [
+                627,
+                342
+            ]
+        ]
     },
     "monkeys": {
         "image-name": "monkeys.png",
         "type": "eyes",
         "eye-image-name": "monkey-eye.png",
-        "eye-width":10,
-        "eye-coordinates": [[475,200],[537,195],[678,250],[703,251],[495,325],[550,320],
-        [180,456],[235,456]]
+        "eye-width": 10,
+        "eye-coordinates": [
+            [
+                475,
+                200
+            ],
+            [
+                537,
+                195
+            ],
+            [
+                678,
+                250
+            ],
+            [
+                703,
+                251
+            ],
+            [
+                495,
+                325
+            ],
+            [
+                550,
+                320
+            ],
+            [
+                180,
+                456
+            ],
+            [
+                235,
+                456
+            ]
+        ]
     },
     "stained-glass": {
         "image-name": "stained-glass-1000px.png",
         "type": "stained-glass"
     },
     "ants": {
-        "image-name": "ants.png",
-        "type": "dots"
+        "image-name": "./ants/antsnolegs.png",
+        "type": "articulated",
+        "lines": 
+            [{
+                "x": 190,
+                "y": 475,
+                "data": [
+                    [ "bottom-left",0, "leg1A.png"],
+                    ["bottom-left", -0.4, "leg1B.png"],
+                    ["bottom-left", -0.8, "leg1C.png"]
+                ]
+            },{"x": 200,
+                "y":
+            500,
+            "data":
+            [
+                ["bottom-right",
+                    0, "leg2A.png"
+                ],
+                ["bottom-left",
+                    0, "leg2B.png"
+                ]
+            ]},{"x":400,
+            "y":491,
+            "data":[
+                ["bottom-right",
+                    0, "leg3A.png"
+                ],
+                ["bottom-right",
+                    0, "leg3B.png"
+                ]
+            ]},{"x": 540,"y":
+            460, "data":
+            [
+                ["bottom-left",
+                    0, "leg4A.png"
+                ],
+                ["bottom-left",
+                    0.6, "leg4B.png"
+                ]
+            ]},{"x":650,"y":
+            450,"data":
+            [
+                ["bottom-right",
+                    0, "leg5A.png"
+                ],
+                ["bottom-left",
+                    0, "leg5B.png"
+                ],
+                ["bottom-left",
+                    0, "leg5C.png"
+                ],
+                ["bottom-left",
+                    0, "leg5D.png"
+                ],
+                ["bottom-left",
+                    0, "leg5E.png"
+                ]
+            ]},{ "x": 700, "y":
+            500, "data":
+            [
+                ["bottom-left",
+                    0, "leg6A.png"
+                ],
+                ["bottom-left",
+                    0, "leg6B.png"
+                ],
+                ["bottom-left",
+                    0, "leg6C.png"
+                ]
+            ]},{"x":400, "y":
+            380, "data":
+            [
+                ["top-right",
+                    0, "leg7A.png"
+                ],
+                ["top-right",
+                    0, "leg7B.png"
+                ]
+            ]}]
+        
     },
     "car-1": {
         "image-name": "car-1.png",
@@ -48,7 +188,16 @@
         "type": "eyes",
         "eye-width": 24,
         "eye-image-name": "spaghetti-eye.png",
-        "eye-coordinates": [[348, 412],[585,417]]
+        "eye-coordinates": [
+            [
+                348,
+                412
+            ],
+            [
+                585,
+                417
+            ]
+        ]
     },
     "spaghetti-2": {
         "image-name": "spaghetti-2.png",

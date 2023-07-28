@@ -2,12 +2,13 @@ import data from './data.json' assert { type: 'json' };
 console.log(data);
 
 //define global variables
-let piece_index = 0;
+let piece_index = 5;
 let paint_mode = false;
 let animation_request_id = undefined;
 let mouse = {
     x: undefined,
-    y: undefined
+    y: undefined,
+    down: false
 };
 
 window.addEventListener('mousemove', function (e) {
@@ -16,7 +17,11 @@ window.addEventListener('mousemove', function (e) {
 });
 
 window.addEventListener('mousedown', () => {
-    console.log("x: "+mouse.x+" y: "+mouse.y)
+    mouse.down = true;
+    console.log("x: " + mouse.x + " y: " + mouse.y)
+})
+window.addEventListener('mouseup', ()=> {
+    mouse.down = false;
 })
 var c = document.getElementById("main_canvas");
 var ctx = c.getContext("2d");
@@ -62,6 +67,8 @@ function display() {
             runEyes(piece_name, img);
         } else if (piece_data.type == "stained-glass") {
             runStainedGlass();
+        } else if (piece_data.type == "articulated") {
+            runArticulated(piece_name, img);
         }
 
     }
@@ -86,7 +93,7 @@ function runEyes(pieceName, image) {
             this.eyeImage = new Image();
             this.eyeReady = false;
             this.eyeWidth = data[pieceName]["eye-width"];
-            this.eyeImage.src = "assets/images/"+data[pieceName]["eye-image-name"];
+            this.eyeImage.src = "assets/images/" + data[pieceName]["eye-image-name"];
             this.x = x;
             this.y = y;
             this.initialX = x;
@@ -99,7 +106,7 @@ function runEyes(pieceName, image) {
         };
         draw = () => {
             if (this.eyeReady) {
-                ctx.drawImage(this.eyeImage, this.x, this.y*window.innerHeight/1000, this.eyeWidth, this.eyeWidth);
+                ctx.drawImage(this.eyeImage, this.x, this.y * window.innerHeight / 1000, this.eyeWidth, this.eyeWidth);
             } else {
                 ctx.beginPath();
                 ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
@@ -109,14 +116,14 @@ function runEyes(pieceName, image) {
         update = () => {
             // this is where we control movement and interactivity
             let distX = window.innerWidth - this.initialX;
-            let curDistX = (mouse.x-window.innerWidth/2) - this.initialX;
-            let moveX = this.eyeWidth/2 * curDistX / distX;
+            let curDistX = (mouse.x - window.innerWidth / 2) - this.initialX;
+            let moveX = this.eyeWidth / 2 * curDistX / distX;
             this.x = this.initialX + moveX;
 
 
             let distY = window.innerHeight - this.initialY;
             let curDistY = mouse.y - this.initialY;
-            let moveY = this.eyeWidth/2 * curDistY / distY;
+            let moveY = this.eyeWidth / 2 * curDistY / distY;
             this.y = this.initialY + moveY;
             this.draw();
         };
@@ -140,6 +147,238 @@ function runEyes(pieceName, image) {
     animateEyes();
 }
 
+
+function runArticulated(pieceName, background_image) {
+
+    class Joint {
+        //x,y are in relation to the original canvas origin
+        constructor(x, y) {
+            this.x = x;
+            this.y = y;
+            this.selected = false;
+        }
+        draw = () => {
+            // if (this.selected) {
+            // this is where we control the shape's appearance
+            ctx.fillStyle = "red"
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, 10, 0, 2 * Math.PI);
+            ctx.fill();
+
+        };
+        update = () => {
+            //when the mouse gets picked up, deselect this joint
+            if (this.selected && !mouse.down) {
+                this.selected = false;
+            }
+            const bounding = c.getBoundingClientRect();
+            if (Math.sqrt(Math.pow(this.x - (mouse.x-Math.floor(bounding.left)) + 5, 2) + Math.sqrt(Math.pow(this.y - (mouse.y-Math.floor(bounding.top)) - 5, 2))) < 10) {
+                if (mouse.down) { this.selected = true; }
+                this.draw();
+            }
+
+        };
+        moveTo = (x, y) => {
+            this.x = x;
+            this.y = y;
+        }
+        rotateAbout = (originX, originY, angle) => {
+            //rotate about the specified origin
+            var x = this.x;
+            var y = this.y;
+            x -= originX
+            y -= originY
+            var cos = Math.cos(-angle % (2 * Math.PI))
+            var sin = Math.sin(-angle % (2 * Math.PI))
+            var newX = (x * cos + y * sin) + originX;
+            var newY = (y * cos + -x * sin) + originY;
+            this.x = newX;
+            this.y = newY;
+        }
+    }
+
+    class Segment {
+        constructor(handle_location, angle, url, child) {
+            this.handle_location = handle_location;
+            this.currentAngle = 0
+            this.initialAngle = angle
+            this.child = child;
+            this.image = new Image();
+            this.image.src = "assets/images/ants/" + url;
+            this.ready = false;
+            this.image.onload = () => { this.ready = true; }
+        }
+        init(xUL, yUL, xH, yH, jointX, jointY) {
+            //dxUL and dyUL are set with the parent's UL as origin
+            this.dxUL = xUL;
+            this.dyUL = yUL;
+            this.dxHandle = xH;
+            this.dyHandle = yH;
+            this.handle = new Joint(jointX, jointY)
+        }
+        draw = () => {
+            if (this.ready) {
+                ctx.drawImage(this.image, this.dxUL, this.dyUL)
+                // ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
+
+                ctx.translate(this.dxHandle, this.dyHandle)
+
+            }
+        };
+        update = () => {
+            this.handle.update();
+            //check for rotation asks
+            if (this.child && this.child.handle.selected) {
+                //calculate how far mouse has moved and implied angle from there
+                const bounding = c.getBoundingClientRect();
+                var directionHandleToMouse = [(mouse.x-Math.floor(bounding.left)) - this.handle.x, (mouse.y-Math.floor(bounding.top)) - this.handle.y]
+                var magHtoM = Math.sqrt(Math.pow(directionHandleToMouse[0], 2) + Math.pow(directionHandleToMouse[1], 2)) //magnitude of handle to mouse
+                var directionHandleToNextHandle = [this.child.handle.x - this.handle.x, this.child.handle.y - this.handle.y] //this should be the diagonal of the image in vector form
+                var magHtoNH = Math.sqrt(Math.pow(directionHandleToNextHandle[0], 2) + Math.pow(directionHandleToNextHandle[1], 2))
+
+                //normalize both vectors using magnitude
+                var nHtoM = [directionHandleToMouse[0] / magHtoM, directionHandleToMouse[1] / magHtoM] //normalized handle to mouse
+                var nHtoNH = [directionHandleToNextHandle[0] / magHtoNH, directionHandleToNextHandle[1] / magHtoNH] //normalized handle to next handle
+
+                var newNextHandle = [this.handle.x + nHtoM[0] * magHtoNH, this.handle.y + nHtoM[1] * magHtoNH]
+
+                //using cross product, find the angle between the two vectors
+                var angle = Math.asin((nHtoNH[0] * nHtoM[1] - nHtoM[0] * nHtoNH[1]))
+                this.child.handle.moveTo(newNextHandle[0], newNextHandle[1])
+                this.child.currentAngle += angle;
+
+                //populate change for the rest of the handles
+                var seg = this.child.child
+                while (seg) {
+                    seg.handle.rotateAbout(this.handle.x, this.handle.y, angle);
+                    seg = seg.child;
+                }
+            }
+        };
+    }
+
+    class Line {
+        // x, y = start point for the line of images
+        // a list of segment information: [the attachment site to the next segment, the angle difference, and the image url]
+        constructor(x, y, segments) {
+            this.startX = x;
+            this.startY = y;
+            this.segmentRoot = undefined;
+
+            var seg;
+
+            //initialize the link-list structure
+            for (var i = segments.length - 1; i >= 0; i--) {
+                this.segmentRoot = new Segment(segments[i][0], segments[i][1], segments[i][2], seg)
+                seg = this.segmentRoot;
+            }
+            var currentSeg = this.segmentRoot;
+            var runningHandleRealX = this.startX;
+            var runningHandleRealY = this.startY;
+
+            var dxH = 0;
+            var dyH = 0;
+            var last_handle_position = currentSeg.handle_location
+            var last_seg_width = 0;
+            var last_seg_height = 0;
+            while (!(currentSeg === undefined)) {
+                if (last_handle_position == "bottom-left") {
+                    var dxUL = -currentSeg.image.width;
+                    var dyUL = 0;
+                    var dxH = -currentSeg.image.width;
+                    var dyH = currentSeg.image.height;
+                } else if (last_handle_position == "bottom-right") {
+                    var dxUL = 0;
+                    var dyUL = 0;
+                    var dxH = currentSeg.image.width;
+                    var dyH = currentSeg.image.height;
+                } else if (last_handle_position == "top-right") {
+                    var dxUL = 0;
+                    var dyUL = -currentSeg.image.height;
+                    var dxH = currentSeg.image.width;
+                    var dyH = -currentSeg.image.height;
+                }
+
+                runningHandleRealX += dxH;
+                runningHandleRealY += dyH;
+
+
+                currentSeg.init(dxUL, dyUL, dxH, dyH, runningHandleRealX, runningHandleRealY)
+                last_handle_position = currentSeg.handle_location
+                last_seg_width = currentSeg.image.width
+                last_seg_height = currentSeg.image.height
+
+                currentSeg = currentSeg.child
+            }
+
+            //set up initial angles
+            currentSeg = this.segmentRoot;
+            while (!(currentSeg === undefined)) {
+                //rotate handles
+                if (!(currentSeg.child === undefined)) {
+                    var runner = currentSeg.child;
+                    var angle_for_rest_of_leg = runner.initialAngle;
+                    while (!(runner === undefined)) {
+                        runner.handle.rotateAbout(currentSeg.handle.x, currentSeg.handle.y, angle_for_rest_of_leg)
+                        runner = runner.child
+                    }
+                }
+                //rotate segments (easy)
+                currentSeg.currentAngle = currentSeg.initialAngle
+                currentSeg = currentSeg.child;
+            }
+        }
+        draw = () => {
+            var currentSeg = this.segmentRoot;
+            ctx.save();
+            ctx.translate(this.startX, this.startY)
+            while (!(currentSeg === undefined)) {
+                ctx.rotate(currentSeg.currentAngle);
+                currentSeg.draw();
+                currentSeg = currentSeg.child;
+            }
+            ctx.restore();
+        };
+        update = () => {
+            var currentSeg = this.segmentRoot;
+            while (!(currentSeg === undefined)) {
+                currentSeg.update();
+                currentSeg = currentSeg.child;
+            }
+        };
+    }
+
+
+    // var lines = [new Line(190, 475, [['bottom-left', 0, 'leg1A.png'], ['bottom-left', -Math.PI / 8, 'leg1B.png'], ['bottom-left', -Math.PI / 4, 'leg1C.png']]),
+    // new Line(200, 500, [['bottom-right', 0, 'leg2A.png'], ['bottom-left', 0, 'leg2B.png']]),
+    // new Line(400, 491, [['bottom-right', 0, 'leg3A.png'], ['bottom-right', 0, 'leg3B.png']]),
+    // new Line(540, 460, [['bottom-left', 0, 'leg4A.png'], ['bottom-left', 0.6, 'leg4B.png']]),
+    // new Line(650, 450, [['bottom-right', 0, 'leg5A.png'], ['bottom-left', 0, 'leg5B.png'], ['bottom-left', 0, 'leg5C.png'], ['bottom-left', 0, 'leg5D.png'], ['bottom-left', 0, 'leg5E.png']]),
+    // new Line(700, 500, [['bottom-left', 0, 'leg6A.png'], ['bottom-left', 0, 'leg6B.png'], ['bottom-left', 0, 'leg6C.png']]),
+    // new Line(400, 380, [['top-right', 0, 'leg7A.png'], ['top-right', 0, 'leg7B.png']])
+    // ]
+    var lines = [];
+    data[pieceName].lines.forEach((line) => {
+        lines.push(new Line(line.x, line.y, line.data))
+    })
+
+    function animate() {
+        animation_request_id = window.requestAnimationFrame(animate);
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+        // ctx.fillStyle = "black"
+        // ctx.fillRect(0,0, window.innerWidth, window.innerHeight);
+        ctx.drawImage(background_image, 0, 0)
+        lines.forEach((line) => {
+            line.update();
+        })
+        lines.forEach((line) => {
+            line.draw();
+        })
+    }
+
+    animate();
+}
+
 //set up the event listener necessary for the stained glass mode
 function runStainedGlass() {
     paint_mode = true;
@@ -149,19 +388,19 @@ function runStainedGlass() {
 
 //flood fill an empty (rgb(a=0)) section with a random color
 //only pass in empty sections from pick()
-function floodFill(x_coord,y_coord) {
+function floodFill(x_coord, y_coord) {
     //get the ImageData object wrapper from the context
-    const image_data = ctx.getImageData(0,0,c.width,c.height);
+    const image_data = ctx.getImageData(0, 0, c.width, c.height);
     //extract the Uint8ClampedArray from ImageData
     var data = image_data.data;
-    
+
     //use FloodFill algorithm with a queue to edit data array while running checks on it (visited-checks are done by color, only empty space can be colored in)
     //https://en.wikipedia.org/wiki/Flood_fill
     var queue = [];
-    
+
     queue.push([x_coord, y_coord]);
 
-    var rColor = [Math.random()*255, Math.random()*255, Math.random()*255];
+    var rColor = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
 
     while (queue.length != 0) {
         // console.log(queue.length)
@@ -172,35 +411,35 @@ function floodFill(x_coord,y_coord) {
         const pixel_data = pixel.data;
 
         //locate the pixel in the Uint8ClampedArray of the data object
-        const index = 4*(y*c.width+x);
+        const index = 4 * (y * c.width + x);
         // console.log("width: "+c.width)
-        if (data[index+3]==0&&data[index+3]!=125) {
+        if (data[index + 3] == 0 && data[index + 3] != 125) {
             //pixel is empty so the up, down, left, and right should be added
 
             //change the pixel to be colored in
             data[index] = rColor[0];
-            data[index+1] = rColor[1];
-            data[index+2] = rColor[2];
-            data[index+3] = 125;
+            data[index + 1] = rColor[1];
+            data[index + 2] = rColor[2];
+            data[index + 3] = 125;
 
-            if (x-1>=0){queue.push([x-1,y]);} else {console.log("what is the reason")}
-            if (x+1<c.width) {queue.push([x+1, y]);} else {console.log("seriously idk")}
-            if (y-1>=0) {queue.push([x, y-1]);} else {console.log("Out of bounds on flood fill (something big going wrong)")}
-            if (y+1<c.height) {queue.push([x, y+1]);} else {console.log("Out of bounds on flood fill (something big going wrong #23)")}
-        } 
-        else if (data[index+3]!=125) {
+            if (x - 1 >= 0) { queue.push([x - 1, y]); } else { console.log("what is the reason") }
+            if (x + 1 < c.width) { queue.push([x + 1, y]); } else { console.log("seriously idk") }
+            if (y - 1 >= 0) { queue.push([x, y - 1]); } else { console.log("Out of bounds on flood fill (something big going wrong)") }
+            if (y + 1 < c.height) { queue.push([x, y + 1]); } else { console.log("Out of bounds on flood fill (something big going wrong #23)") }
+        }
+        else if (data[index + 3] != 125) {
             //create essentially a border pixel which will flip the one extraneous one. this looks 
             //  better than setting the pixels to black (makes ink extra thick) or leaving i
             //  unflipped, which looks discontinuous
-            data[index] = rColor[0]/2.0;
-            data[index+1] = rColor[1]/2.0;
-            data[index+2] = rColor[2]/2.0;
-            data[index+3] = 255;
+            data[index] = rColor[0] / 2.0;
+            data[index + 1] = rColor[1] / 2.0;
+            data[index + 2] = rColor[2] / 2.0;
+            data[index + 3] = 255;
         }
     }
 
     const bounding = c.getBoundingClientRect();
-    ctx.putImageData(image_data, 0,0);
+    ctx.putImageData(image_data, 0, 0);
 }
 
 //special selection event only for flood fill effect
@@ -213,10 +452,8 @@ function pick(event) {
     const pixel = ctx.getImageData(x_coord, y_coord, 1, 1);
     const pixel_data = pixel.data;
 
-    if (pixel_data[3]==0) {
-        floodFill(x_coord,y_coord);
-    } else {
-        console.log("nope")
+    if (pixel_data[3] == 0) {
+        floodFill(x_coord, y_coord);
     }
 }
 

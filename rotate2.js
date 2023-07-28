@@ -9,7 +9,6 @@ let mouse = {
 window.addEventListener('mousemove', function (e) {
     mouse.x = e.x;
     mouse.y = e.y;
-    // console.log("mousex " + mouse.x + " mousey " + mouse.y)
 });
 window.addEventListener('mousedown', () => {
     mouse.down = true;
@@ -88,8 +87,6 @@ class Segment {
 
             ctx.translate(this.dxHandle, this.dyHandle)
 
-        } else {
-            console.log("not ready")
         }
     };
     update = () => {
@@ -116,7 +113,6 @@ class Segment {
             //populate change for the rest of the handles
             var seg = this.child.child
             while (seg) {
-                // console.log(seg.handle)
                 seg.handle.rotateAbout(this.handle.x, this.handle.y, angle);
                 seg = seg.child;
             }
@@ -136,9 +132,7 @@ class Line {
 
         //initialize the link-list structure
         for (var i = segments.length - 1; i >= 0; i--) {
-            console.log('init started')
             this.segmentRoot = new Segment(segments[i][0], segments[i][1], segments[i][2], seg)
-            console.log(this.segmentRoot)
             seg = this.segmentRoot;
         }
         var currentSeg = this.segmentRoot;
