@@ -416,7 +416,7 @@ function floodFill(x_coord, y_coord) {
 
     queue.push([x_coord, y_coord]);
 
-    var rColor = [Math.random() * 255, Math.random() * 255, Math.random() * 255];
+    var rColor = [0, Math.random() * 255, Math.random() * 255];
 
     while (queue.length != 0) {
         var n = queue.shift();
