@@ -13,7 +13,7 @@ function loadAntImages() {
 loadAntImages();
 
 //define global variables
-let piece_index = 0;
+let piece_index = 0; //NOTE: if debugging a certain piece, you can set this to slide number and make your life faster
 let paint_mode = false;
 let animation_request_id = undefined;
 let mouse = {
@@ -63,6 +63,7 @@ function display() {
 
     let piece_data = data[piece_name]
     if (piece_data.type == "text") {
+        ctx.fillStyle = "black"
         ctx.fillText(piece_data.contents, 100, 100)
     } else {
         const img = new Image();
@@ -307,20 +308,20 @@ function runArticulated(pieceName, background_image) {
             while (!(currentSeg === undefined)) {
                 //change the offset initialization process based on where the handle will be attached on each segment
                 if (last_handle_position == "bottom-left") {
-                    var dxUL = -currentSeg.image.width;
+                    var dxUL = -currentSeg.image.width+5;
                     var dyUL = 0;
-                    var dxH = -currentSeg.image.width;
-                    var dyH = currentSeg.image.height;
+                    var dxH = -currentSeg.image.width+5;
+                    var dyH = currentSeg.image.height-5;
                 } else if (last_handle_position == "bottom-right") {
-                    var dxUL = 0;
+                    var dxUL = 5;
                     var dyUL = 0;
-                    var dxH = currentSeg.image.width;
-                    var dyH = currentSeg.image.height;
+                    var dxH = currentSeg.image.width-15; //todo make the adjustments editable in data.json
+                    var dyH = currentSeg.image.height-5;
                 } else if (last_handle_position == "top-right") {
-                    var dxUL = 0;
+                    var dxUL = 5;
                     var dyUL = -currentSeg.image.height;
                     var dxH = currentSeg.image.width;
-                    var dyH = -currentSeg.image.height;
+                    var dyH = -currentSeg.image.height+10;
                 }
                 //keep track of the actual position based on the offsets (for plugging into the handles which exist on the real coord system, not offsets)
                 runningHandleRealX += dxH;

@@ -8,7 +8,8 @@
         "ants",
         "toes",
         "spaghetti",
-        "spaghetti-2"
+        "spaghetti-2",
+        "outro-text"
     ],
     "intro-text": {
         "type": "text",
@@ -200,5 +201,10 @@
     "spaghetti-2": {
         "image-name": "spaghetti-2.png",
         "type": "stained-glass"
+    },
+    "outro-text": {
+        "type": "text",
+        "contents": "That's all folks! Stay tuned for future work by Charlotte Silverman and Coco Kaleel!"
     }
+
 }
