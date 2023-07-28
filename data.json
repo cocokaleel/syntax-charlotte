@@ -1,12 +1,12 @@
 {
-    "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "attached", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti", "spaghetti-2"],
+    "pieces": ["intro-text", "intro-text-2", "eyes-1", "monkeys", "stained-glass", "ants", "car-1", "car-2", "toes", "spaghetti", "spaghetti-2"],
     "intro-text": {
         "type": "text",
         "contents": "Hello [press spacebar to advance]"
     },
     "intro-text-2": {
         "type": "text",
-        "contents": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. :) [press spacebar to advance]"
+        "contents": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. Please use your mouse to explore! [press spacebar to advance]"
     },
     "eyes-1": {
         "image-name": "eyes-missing.png",
@@ -22,10 +22,6 @@
         "eye-width":10,
         "eye-coordinates": [[475,200],[537,195],[678,250],[703,251],[495,325],[550,320],
         [180,456],[235,456]]
-    },
-    "attached": {
-        "image-name": "attached.png",
-        "type": "dots"
     },
     "stained-glass": {
         "image-name": "stained-glass-1000px.png",

@@ -24,7 +24,6 @@ class Joint {
         this.selected = false;
     }
     draw = () => {
-        // console.log("handle x: " + this.x + " handle y: " + this.y)
         // if (this.selected) {
         // this is where we control the shape's appearance
         ctx.fillStyle = "red"
@@ -40,8 +39,8 @@ class Joint {
         }
         if (Math.sqrt(Math.pow(this.x - mouse.x + 5, 2) + Math.sqrt(Math.pow(this.y - mouse.y - 5, 2))) < 10) {
             if (mouse.down) {this.selected = true;}
-           
-        } this.draw();
+            this.draw();
+        }
 
     };
     moveTo = (x, y) => {
@@ -52,31 +51,23 @@ class Joint {
         //rotate about the specified origin
         var x = this.x;
         var y = this.y;
-        console.log("originX " + originX + " originY " + originY)
-
-        console.log("this.x + " + this.x)
         x -= originX
         y -= originY
         var cos = Math.cos(-angle % (2*Math.PI))
         var sin = Math.sin(-angle % (2*Math.PI))
-        console.log("x: " + x)
-        console.log("y: " + y)
         var newX = (x*cos + y*sin) + originX;
         var newY = (y*cos + -x*sin) + originY;
-        console.log("newX " + newX)
-        console.log("newY " + newY)
         this.x = newX;
         this.y = newY;
     }
 }
 
 class Segment {
-    constructor(handle_location, angle, url, imgWidth, imgHeight, child) {
+    constructor(handle_location, angle, url, child) {
         this.handle_location = handle_location;
         this.currentAngle = 0
+        this.initialAngle = angle
         this.child = child;
-        this.imgWidth = imgWidth;
-        this.imgHeight = imgHeight;
         this.image = new Image();
         this.image.src = "assets/images/ants/" + url;
         this.ready = false;
@@ -93,7 +84,7 @@ class Segment {
     draw = () => {
         if (this.ready) {
             ctx.drawImage(this.image, this.dxUL, this.dyUL)
-            ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
+            // ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height);
 
             ctx.translate(this.dxHandle, this.dyHandle)
 
@@ -146,7 +137,7 @@ class Line {
         //initialize the link-list structure
         for (var i = segments.length - 1; i >= 0; i--) {
             console.log('init started')
-            this.segmentRoot = new Segment(segments[i][0], segments[i][1], segments[i][2], segments[i][3], segments[i][4], seg)
+            this.segmentRoot = new Segment(segments[i][0], segments[i][1], segments[i][2], seg)
             console.log(this.segmentRoot)
             seg = this.segmentRoot;
         }
@@ -156,19 +147,54 @@ class Line {
 
         var dxH = 0;
         var dyH = 0;
+        var last_handle_position = currentSeg.handle_location
+        var last_seg_width = 0;
+        var last_seg_height = 0;
         while (!(currentSeg === undefined)) {
-            var dxUL = -currentSeg.imgWidth;
-            var dyUL = 0;
-            var dxH = -currentSeg.imgWidth;
-            var dyH = currentSeg.imgHeight;
+            if (last_handle_position == "bottom-left") {
+                var dxUL = -currentSeg.image.width;
+                var dyUL = 0;
+                var dxH = -currentSeg.image.width;
+                var dyH = currentSeg.image.height;
+            } else if (last_handle_position == "bottom-right"){
+                var dxUL = 0;
+                var dyUL = 0;
+                var dxH = currentSeg.image.width;
+                var dyH = currentSeg.image.height;
+            } else if (last_handle_position == "top-right") {
+                var dxUL = 0;
+                var dyUL = -currentSeg.image.height;
+                var dxH = currentSeg.image.width;
+                var dyH = -currentSeg.image.height;
+            }
 
             runningHandleRealX += dxH;
             runningHandleRealY += dyH;
 
 
             currentSeg.init(dxUL, dyUL, dxH, dyH, runningHandleRealX, runningHandleRealY)
-
+            last_handle_position = currentSeg.handle_location
+            last_seg_width = currentSeg.image.width
+            last_seg_height = currentSeg.image.height
+            
             currentSeg = currentSeg.child
+        }
+
+        //set up initial angles
+        currentSeg = this.segmentRoot;
+        while (!(currentSeg === undefined)) {
+            //rotate handles
+            if (!(currentSeg.child===undefined)) {
+                var runner = currentSeg.child;
+                var angle_for_rest_of_leg = runner.initialAngle;
+                while (!(runner === undefined)) {
+                    runner.handle.rotateAbout(currentSeg.handle.x, currentSeg.handle.y, angle_for_rest_of_leg)
+                    runner = runner.child
+                }
+            }
+            //rotate segments (easy)
+            currentSeg.currentAngle = currentSeg.initialAngle
+            currentSeg = currentSeg.child;
         }
     }
     draw = () => {
@@ -176,7 +202,6 @@ class Line {
         ctx.save();
         ctx.translate(this.startX, this.startY)
         while (!(currentSeg === undefined)) {
-            // console.log(currentSeg.currentAngle);
             ctx.rotate(currentSeg.currentAngle);
             currentSeg.draw();
             currentSeg = currentSeg.child;
@@ -193,11 +218,25 @@ class Line {
 }
 
 
-var lines = [new Line(300, 300, [['bottom-left', 0, 'leg1A.png', 68, 41],['bottom-left', 0, 'leg1B.png', 93, 110], ['bottom-left', 0, 'leg1C.png', 71, 135]])]
+var lines = [new Line(190, 475, [['bottom-left', 0, 'leg1A.png'],['bottom-left', -Math.PI/8, 'leg1B.png'], ['bottom-left', -Math.PI/4, 'leg1C.png']]),
+            new Line(200,500,[['bottom-right', 0, 'leg2A.png'], ['bottom-left', 0, 'leg2B.png']]),
+            new Line(400,491,[['bottom-right', 0, 'leg3A.png'], ['bottom-right', 0, 'leg3B.png']]),
+            new Line(540,460,[['bottom-left', 0, 'leg4A.png'], ['bottom-left', 0.6, 'leg4B.png']]),
+            new Line(650,450,[['bottom-right', 0, 'leg5A.png'], ['bottom-left', 0, 'leg5B.png'], ['bottom-left',0,'leg5C.png'],['bottom-left',0,'leg5D.png'],['bottom-left',0,'leg5E.png']]),
+            new Line(700,500,[['bottom-left', 0, 'leg6A.png'], ['bottom-left', 0, 'leg6B.png'], ['bottom-left',0,'leg6C.png']]),
+            new Line(400,380,[['top-right', 0, 'leg7A.png'], ['top-right', 0, 'leg7B.png']])
+        ]
+
+
+var antsNoLegsImage = new Image;
+antsNoLegsImage.src = './assets/images/ants/antsnolegs.png'
 
 function animate() {
     requestAnimationFrame(animate);
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    ctx.fillStyle = "black"
+    // ctx.fillRect(0,0, window.innerWidth, window.innerHeight);
+    ctx.drawImage(antsNoLegsImage, 0,0)
     lines.forEach((line) => {
         line.update();
     })
