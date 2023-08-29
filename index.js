@@ -63,8 +63,17 @@ function display() {
 
     let piece_data = data[piece_name]
     if (piece_data.type == "text") {
-        ctx.fillStyle = "black"
-        ctx.fillText(piece_data.contents, 100, 100)
+        var str = piece_data.text;
+        if (str.length > 50) {
+            var position = 100;
+            let maxLength = 150;
+            ctx.fillStyle = "black"
+            for (var i = 0; str.length > 0; i++) {
+                var currentText = str.length > maxLength ? str.substring(0,maxLength) : str;
+                str = str.length > maxLength ? str.substring(maxLength) : "";
+                ctx.fillText(currentText, 100, position+30*i)
+            }
+        }
     } else {
         const img = new Image();
         img.src = "assets/images/" + piece_data["image-name"]

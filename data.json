@@ -13,11 +13,11 @@
     ],
     "intro-text": {
         "type": "text",
-        "contents": "Hello [press right arrow to advance, left arrow to go back]"
+        "text": "Hello [press right arrow to advance, left arrow to go back]"
     },
     "intro-text-2": {
         "type": "text",
-        "contents": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. Please use your mouse to explore!"
+        "text": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. Please use your mouse to explore!"
     },
     "eyes-1": {
         "image-name": "eyes-missing.png",
@@ -204,7 +204,7 @@
     },
     "outro-text": {
         "type": "text",
-        "contents": "That's all folks! Stay tuned for future work by Charlotte Silverman and Coco Kaleel!"
+        "text": "That's all folks! Stay tuned for future work by Charlotte Silverman and Coco Kaleel!"
     }
 
 }
