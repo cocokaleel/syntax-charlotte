@@ -7,8 +7,6 @@ function preloadImages() {
             data[pieceName].lines.forEach((line)=> {
                 line.data.forEach((segment)=>{
                     var img = new Image();
-                    console.log(pieceName)
-                    console.log(segment)
                     img.src = "assets/images/articulated/" + segment[2];
                     preloadedImages.set(segment[2], img)
 
@@ -23,6 +21,8 @@ preloadImages();
 let piece_index = 0; //NOTE: if debugging a certain piece, you can set this to slide number and make your life faster
 let paint_mode = false;
 let animation_request_id = undefined;
+
+let maxTextLineLength = 90;
 let mouse = {
     x: undefined,
     y: undefined,
@@ -42,7 +42,6 @@ window.addEventListener('mouseup', ()=> {
 })
 var c = document.getElementById("main_canvas");
 var ctx = c.getContext("2d");
-
 c.width = 1000;
 c.height = 1000;
 
@@ -74,12 +73,21 @@ function display() {
         var str = piece_data.text;
         if (str.length > 50) {
             var position = 100;
-            let maxLength = 150;
             ctx.fillStyle = "black"
+            ctx.font = "20px Arial";
+            
             for (var i = 0; str.length > 0; i++) {
-                var currentText = str.length > maxLength ? str.substring(0,maxLength) : str;
-                str = str.length > maxLength ? str.substring(maxLength) : "";
-                ctx.fillText(currentText, 100, position+30*i)
+                if (str.length > maxTextLineLength) {
+                    var searchString = str.substring(0, maxTextLineLength);
+                    var lastSpaceIndex = searchString.lastIndexOf(" ");
+                    var currentText = str.substring(0, lastSpaceIndex);
+                    str = str.substring(lastSpaceIndex);
+                    ctx.fillText(currentText, 100, position+30*i)
+
+                } else {
+                    ctx.fillText(str, 100, position+30*i)
+                    str = "";
+                }
             }
         }
     } else {
