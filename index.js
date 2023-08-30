@@ -1,16 +1,23 @@
 import data from './data.json' assert { type: 'json' };
 
-var antImages = new Map(); //this is necessary for preloading
-function loadAntImages() {
-    data.ants.lines.forEach((line)=>{
-        line.data.forEach((segment) => {
-            var img = new Image();
-            img.src = "./assets/images/ants/"+segment[2];
-            antImages.set(segment[2], img)
-        })
+var preloadedImages = new Map(); //this is necessary for preloading articulated images
+function preloadImages() {
+    data.pieces.forEach((pieceName) => {
+        if (data[pieceName].type == "articulated") {
+            data[pieceName].lines.forEach((line)=> {
+                line.data.forEach((segment)=>{
+                    var img = new Image();
+                    console.log(pieceName)
+                    console.log(segment)
+                    img.src = "assets/images/articulated/" + segment[2];
+                    preloadedImages.set(segment[2], img)
+
+                })
+            })
+        }
     })
 }
-loadAntImages();
+preloadImages();
 
 //define global variables
 let piece_index = 0; //NOTE: if debugging a certain piece, you can set this to slide number and make your life faster
@@ -61,6 +68,7 @@ function display() {
     ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
     let piece_name = data.pieces[piece_index]
 
+    //split up text TODO make fancier
     let piece_data = data[piece_name]
     if (piece_data.type == "text") {
         var str = piece_data.text;
@@ -238,8 +246,8 @@ function runArticulated(pieceName, background_image) {
             this.initialAngle = angle
             this.child = child; //the next segment in the chain (yes this is a linked-list)
             // this.image = new Image(); //this is commented out because I changed it to a pre-loaded system
-            // this.image.src = "assets/images/ants/" + url;
-            this.image = antImages.get(url) //TODO MAKE THIS ABSTRACT AND NOT SPECIFICALLY FOR ANT IMAGE
+            // this.image.src = "assets/images/articulated/" + url;
+            this.image = preloadedImages.get(url) //TODO MAKE THIS ABSTRACT AND NOT SPECIFICALLY FOR ANT IMAGE
             this.ready = false;
         }
         //after initial information is in, set up coordinate system relative to the parent of each segment

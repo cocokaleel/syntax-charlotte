@@ -88,7 +88,7 @@
         "type": "stained-glass"
     },
     "ants": {
-        "image-name": "./ants/antsnolegs.png",
+        "image-name": "./articulated/antsnolegs.png",
         "type": "articulated",
         "lines": 
             [{
