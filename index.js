@@ -249,13 +249,13 @@ function runArticulated(pieceName, background_image) {
     //the image segments that end with handles
     class Segment {
         constructor(handle_location, angle, url, child) {
+            //handle connects to next Segment or nothing, if it's the end
+            //hinge connects to previous Segment, or is nothing
             this.handle_location = handle_location;
             this.currentAngle = 0
             this.initialAngle = angle
             this.child = child; //the next segment in the chain (yes this is a linked-list)
-            // this.image = new Image(); //this is commented out because I changed it to a pre-loaded system
-            // this.image.src = "assets/images/articulated/" + url;
-            this.image = preloadedImages.get(url) //TODO MAKE THIS ABSTRACT AND NOT SPECIFICALLY FOR ANT IMAGE
+            this.image = preloadedImages.get(url)
             this.ready = false;
         }
         //after initial information is in, set up coordinate system relative to the parent of each segment
@@ -268,8 +268,10 @@ function runArticulated(pieceName, background_image) {
             this.handle = new Joint(jointX, jointY)
         }
         draw = () => {
-                ctx.drawImage(this.image, this.dxUL, this.dyUL)
-                // ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height); //todo comment in if you want to see the image bounds
+                //the image should be centered around the handle location. TODO draw the image
+                ctx.drawImage(this.image, this.dxUL, this.dyUL) //todo the image
+                ctx.strokeStyle = "gray"
+                ctx.strokeRect(this.dxUL, this.dyUL, this.image.width, this.image.height); //todo comment in if you want to see the image bounds
 
                 //offset the canvas by the handle offset (to make rotations about the handle location)
                 ctx.translate(this.dxHandle, this.dyHandle)
@@ -316,7 +318,7 @@ function runArticulated(pieceName, background_image) {
 
             var seg;
 
-            //initialize the link-list structure
+            //initialize the link-list structure from back to front
             for (var i = segments.length - 1; i >= 0; i--) {
                 this.segmentRoot = new Segment(segments[i][0], segments[i][1], segments[i][2], seg)
                 seg = this.segmentRoot;
@@ -332,21 +334,22 @@ function runArticulated(pieceName, background_image) {
             var last_seg_height = 0;
             while (!(currentSeg === undefined)) {
                 //change the offset initialization process based on where the handle will be attached on each segment
+                //TODO fix this so it's related to upper left on all
                 if (last_handle_position == "bottom-left") {
-                    var dxUL = -currentSeg.image.width+5;
+                    var dxUL = -currentSeg.image.width;
                     var dyUL = 0;
-                    var dxH = -currentSeg.image.width+5;
-                    var dyH = currentSeg.image.height-5;
+                    var dxH = -currentSeg.image.width;
+                    var dyH = currentSeg.image.height;
                 } else if (last_handle_position == "bottom-right") {
-                    var dxUL = 5;
+                    var dxUL = 0;
                     var dyUL = 0;
-                    var dxH = currentSeg.image.width-15; //todo make the adjustments editable in data.json
-                    var dyH = currentSeg.image.height-5;
+                    var dxH = currentSeg.image.width; //todo make the adjustments editable in data.json
+                    var dyH = currentSeg.image.height;
                 } else if (last_handle_position == "top-right") {
-                    var dxUL = 5;
+                    var dxUL = 0;
                     var dyUL = -currentSeg.image.height;
                     var dxH = currentSeg.image.width;
-                    var dyH = -currentSeg.image.height+10;
+                    var dyH = -currentSeg.image.height;
                 }
                 //keep track of the actual position based on the offsets (for plugging into the handles which exist on the real coord system, not offsets)
                 runningHandleRealX += dxH;
@@ -354,6 +357,8 @@ function runArticulated(pieceName, background_image) {
 
 
                 currentSeg.init(dxUL, dyUL, dxH, dyH, runningHandleRealX, runningHandleRealY)
+                
+                
                 last_handle_position = currentSeg.handle_location
                 //keep track of these for the above recursion values
                 last_seg_width = currentSeg.image.width
