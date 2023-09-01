@@ -3,3 +3,18 @@
     width: 60%;
     cursor: pointer;
 }
+
+#size_warning {
+    display: none;
+}
+
+
+
+@media (max-width: 1000px) {
+    #main_wrapper {
+        display: none !important;
+    }
+    #size_warning {
+        display: block;
+    }
+}
