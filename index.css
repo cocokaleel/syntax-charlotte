@@ -9,7 +9,7 @@
 }
 
 
-
+/** Hide display and show warning on screens smaller than 1000 pixels **/
 @media (max-width: 1000px) {
     #main_wrapper {
         display: none !important;

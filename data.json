@@ -9,7 +9,8 @@
         "toes",
         "spaghetti",
         "spaghetti-2",
-        "outro-text"
+        "outro-text",
+        "coco-text"
     ],
     "intro-text": {
         "type": "text",
@@ -17,7 +18,7 @@
     },
     "intro-text-2": {
         "type": "text",
-        "text": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. Please use your mouse to explore!"
+        "text": "Welcome to a gallery of Charlotte Silverman's work (made interactive by Coco Kaleel). We are some of her creations. Please use your mouse to explore by clicking, dragging, or moving around! Every image has an element of interactivity!"
     },
     "eyes-1": {
         "image-name": "eyes-missing.png",
@@ -204,7 +205,11 @@
     },
     "outro-text": {
         "type": "text",
-        "text": "That's all folks! Stay tuned for future work by Charlotte Silverman and Coco Kaleel!"
+        "text": "Stay tuned for future work by Charlotte Silverman and Coco Kaleel! Advance for artist's notes =>"
+    },
+    "coco-text": {
+        "type": "text",
+        "text": "I'm so grateful that I got to work on this piece! I've primarily worked in graphics engine design, so it was a fun challenge to get hands on with real art pieces. I loved collaborating with Charlotte to make her pieces interactive while keeping true to the original spirit of the art. Excited for future work!!"
     }
 
 }

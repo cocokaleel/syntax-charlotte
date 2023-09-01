@@ -512,4 +512,6 @@ function stop() {
         c.removeEventListener("click", pick); //make it not possible to trigger the pick and fill function
         paint_mode = false;
     }
+
+    ctx.clearRect(0, 0, 1000, 1000);
 }
